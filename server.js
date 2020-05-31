@@ -26,11 +26,8 @@ connection.once('open', () => {
 
 //require the routes and use them
 
-/*const usersRouter = require('./routes/users');
-const bookingsRouter = require('./routes/bookings');
-
+const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
-app.use('/bookings', bookingsRouter);*/
 
 //server is listening on port...
 app.listen(port, () => {
