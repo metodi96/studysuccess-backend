@@ -24,10 +24,16 @@ connection.once('open', () => {
   console.log("MongoDB database connection established successfully");
 })
 
+app.get('/', (req, res) => {
+  res.send("")
+})
 //require the routes and use them
-
+//users router
 const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
+//tutors router
+const tutorsRouter = require('./routes/tutors');
+app.use('/tutors', tutorsRouter);
 
 //server is listening on port...
 app.listen(port, () => {

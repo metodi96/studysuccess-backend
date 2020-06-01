@@ -5,13 +5,42 @@ let User = require('../models/user');
 //the first endpoint /users
 router.route('/').get((req, res) => {
     //get a list of all the users from the mongodb database 
-    //return a promise
   User.find()
     .then(users => res.json(users))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
+//get a specific user
+router.route('/:id').get((req, res) => {
+  User.findById(req.params.id)
+    .then(user => res.json(user))
+    .catch(err => res.status(400).json('Error: ' + err));
+});
+
+//update a user 
+router.route('/:id/update').post((req, res) => {
+  User.findById(req.params.id)
+    .then(user => {
+      user.firstname = req.body.firstname;
+      user.lastname = req.body.lastname;
+      user.email = req.body.email;
+      user.dateOfBirth = req.body.dateOfBirth;
+      user.semester = req.body.semester;
+      user.university = req.body.university;
+      user.studyProgram = req.body.studyProgram;
+      user.degree = req.body.degree;
+      user.certificateOfEnrolment = req.body.certificateOfEnrolment;
+      user.gradeExcerpt = req.body.gradeExcerpt;
+
+      user.save()
+        .then(() => user.certificateOfEnrolment && user.gradeExcerpt ? res.json('User updated to tutor!') : res.json('User updated!'))
+        .catch(err => res.status(400).json('Error: ' + err));
+    })
+    .catch(err => res.status(400).json('Error: ' + err));
+});
+
 //this handles incoming http post requests
+//users/add
 router.route('/add').post((req, res) => {
   const firstname = req.body.firstname;
   const lastname = req.body.lastname;

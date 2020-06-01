@@ -1,5 +1,7 @@
 "use strict";
 const mongoose = require('mongoose');
+//require the new package for type Email
+require('mongoose-type-email');
 
 // define the user schema
 const UserSchema  = new mongoose.Schema({
@@ -15,9 +17,8 @@ const UserSchema  = new mongoose.Schema({
         minlength: 1,
     },
     email: {
-        type: String,
-        required: true,
-        minlength: 5
+        type: mongoose.SchemaTypes.Email,
+        required: true
     },
     dateOfBirth: {
         type: Date,
@@ -42,7 +43,28 @@ const UserSchema  = new mongoose.Schema({
         type: String,
         enum: ['Bachelor', 'Master'],
         default: 'Bachelor'
-    }
+    },
+    avgRating: {
+        type: Number
+    },
+    certificateOfEnrolment: {
+        type: Boolean
+    },
+    gradeExcerpt: {
+        type: Boolean
+    },
+    pricePerHour: {
+        type: Number
+    },
+    personalStatement: {
+        type: String,
+        default: ''
+    },
+    languages: [
+        {
+            type: String
+        }
+    ]
     
 },  {
         timestamps: true,
