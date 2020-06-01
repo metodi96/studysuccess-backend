@@ -57,8 +57,7 @@ const UserSchema  = new mongoose.Schema({
         type: Number
     },
     personalStatement: {
-        type: String,
-        default: ''
+        type: String
     },
     languages: [
         {
