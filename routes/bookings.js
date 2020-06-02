@@ -12,6 +12,20 @@ router.route('/').get((req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
+router.route('/past').get((req, res) => {
+  Booking.find().where('timeslotStart').lt(new Date()).
+  populate('tutor').
+  then(booking => res.json(booking)).
+  catch(err => res.status(400).json('Error: ' + err)); 
+});
+
+router.route('/current').get((req, res) => {
+  Booking.find().where('timeslotStart').gt(new Date()).
+  populate('tutor').
+  then(booking => res.json(booking)).
+  catch(err => res.status(400).json('Error: ' + err)); 
+});
+
 //this handles incoming http post requests
 router.route('/add').post((req, res) => {
   const timeslotStart = req.body.timeslotStart;
@@ -39,6 +53,17 @@ router.route('/:id').get((req, res) => {
       .then(() => res.json('Booking deleted.'))
       .catch(err => res.status(400).json('Error: ' + err));
   });
+
+  router.route('/:id/feedback').get((req, res) => {
+    Booking.find().
+    populate('tutor').
+    where('tutor._id').equals(req.params.id.toString).
+    then(booking => res.json(booking[0].feedback)).
+    catch(err => res.status(400).json('Error: ' + err));
+    console.log(req.params.id); 
+  });
+
+  
 
   /* initial logic - to be discussed
   router.route('/update/:id').post((req, res) => {
