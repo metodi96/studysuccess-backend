@@ -54,13 +54,13 @@ router.route('/:id').get((req, res) => {
       .catch(err => res.status(400).json('Error: ' + err));
   });
 
-  router.route('/:id/feedback').get((req, res) => {
+  router.route('/:tutorId/feedback').get((req, res) => {
     Booking.find().
     populate('tutor').
-    where('tutor._id').equals(req.params.id.toString).
-    then(booking => res.json(booking[0].feedback)).
+    where('tutor._id').equals(req.params.tutorId.toString).
+    then(bookings => res.json(bookings.map(x => x.feedback))).
     catch(err => res.status(400).json('Error: ' + err));
-    console.log(req.params.id); 
+    console.log(req.params.tutorId); 
   });
 
   
