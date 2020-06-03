@@ -59,8 +59,8 @@ const UserSchema  = new mongoose.Schema({
     personalStatement: {
         type: String
     },
-    languages: {type: [String], select: false},
-    feedback: [{
+    languages: {type: [String], default: undefined},
+    feedback: {type: [{
         rating: {
         type: Number,
         required: false
@@ -70,7 +70,7 @@ const UserSchema  = new mongoose.Schema({
         default: "",
         required: false
     }
-    }]
+    }], default: undefined}
 },  {
         timestamps: true,
 });
