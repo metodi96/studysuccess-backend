@@ -8,6 +8,7 @@ router.route('/').get((req, res) => {
     //return a promise
   Booking.find()
     .populate('tutor')
+    .populate('subject')
     .then(bookings => res.json(bookings))
     .catch(err => res.status(400).json('Error: ' + err));
 });
@@ -32,8 +33,9 @@ router.route('/add').post((req, res) => {
   const timeslotEnd = req.body.timeslotEnd;
   const participantNumber = req.body.participantNumber;
   const tutor = req.body.tutor;
+  const subject = req.body.subject;
 
-  const newBooking = new Booking({timeslotStart, timeslotEnd, participantNumber, tutor});
+  const newBooking = new Booking({timeslotStart, timeslotEnd, participantNumber, tutor, subject});
 
   newBooking.save()
     .then(() => res.json('Booking added!'))
@@ -44,6 +46,7 @@ router.route('/add').post((req, res) => {
 router.route('/:id').get((req, res) => {
     Booking.findById(req.params.id)
     .populate('tutor')
+    .populate('subject')
       .then(booking => res.json(booking))
       .catch(err => res.status(400).json('Error: ' + err));
   });

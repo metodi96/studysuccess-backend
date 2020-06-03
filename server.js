@@ -37,6 +37,9 @@ app.use('/tutors', tutorsRouter);
 //bookings router
 const bookingsRouter = require('./routes/bookings');
 app.use('/bookings', bookingsRouter);
+//subjects router
+const subjectsRouter = require('./routes/subjects');
+app.use('/subjects', subjectsRouter);
 
 //server is listening on port...
 app.listen(port, () => {

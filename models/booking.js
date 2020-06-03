@@ -16,7 +16,8 @@ const BookingSchema  = new mongoose.Schema({
             type: String,
             default: ""
         }
-    }
+    },
+    subject: {type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true}
 },  {
         timestamps: true,
 });
