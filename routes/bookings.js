@@ -1,6 +1,7 @@
 //we need the express router and to require the model
 const router = require('express').Router();
 let Booking = require('../models/booking');
+let User = require('../models/user');
 
 //the first endpoint /bookings
 router.route('/').get((req, res) => {
@@ -13,11 +14,42 @@ router.route('/').get((req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
+//get past bookings
 router.route('/past').get((req, res) => {
   Booking.find().where('timeslotStart').lt(new Date()).
   populate('tutor').
   then(booking => res.json(booking)).
   catch(err => res.status(400).json('Error: ' + err)); 
+});
+
+//get a specific past booking
+router.route('/past/:id').get((req, res) => {
+  Booking.findById(req.params.id).where('timeslotStart').lt(new Date()).
+  populate('tutor').
+  then(booking => res.json(booking)).
+  catch(err => res.status(400).json('Error: ' + err)); 
+});
+
+
+//post feedback to a specific past booking and update booking and tutor entries with it
+router.route('/past/:id/feedback/add').post((req, res) => {
+  const booking = req.params.id;
+  const tutor = req.body.tutor;
+  Booking.findById(booking).then(booking => {
+    //check if for this booking feedback is given
+    if(!booking.feedbackGiven) {
+      Booking.updateOne({_id: booking}, {$set: {feedbackGiven: true}}, {new: true})
+      .where('timeslotStart')
+      .lt(new Date())
+      .then(
+        User.updateOne({_id: tutor}, {$addToSet: {feedback: {rating: req.body.rating, comment: req.body.comment}}}, {new: true})
+        .then(() => res.json("User and booking updated with feedback")))
+        .catch(err => res.status(400).json('Error: ' + err));
+    } else {
+      res.json('Feedback already given for this booking')
+    }
+  })
+  .catch(err => res.status(400).json('Error: ' + err));
 });
 
 router.route('/current').get((req, res) => {
@@ -27,7 +59,7 @@ router.route('/current').get((req, res) => {
   catch(err => res.status(400).json('Error: ' + err)); 
 });
 
-//this handles incoming http post requests
+//post a booking
 router.route('/add').post((req, res) => {
   const timeslotStart = req.body.timeslotStart;
   const timeslotEnd = req.body.timeslotEnd;
@@ -51,22 +83,21 @@ router.route('/:id').get((req, res) => {
       .catch(err => res.status(400).json('Error: ' + err));
   });
   
+  //delete a specific booking
   router.route('/:id').delete((req, res) => {
     Booking.findByIdAndDelete(req.params.id)
       .then(() => res.json('Booking deleted.'))
       .catch(err => res.status(400).json('Error: ' + err));
   });
 
+  //to be revisited
   router.route('/:tutorId/feedback').get((req, res) => {
     Booking.find().
     populate('tutor').
     where('tutor._id').equals(req.params.tutorId.toString).
     then(bookings => res.json(bookings.map(x => x.feedback))).
     catch(err => res.status(400).json('Error: ' + err));
-    console.log(req.params.tutorId); 
   });
-
-  
 
   /* initial logic - to be discussed
   router.route('/update/:id').post((req, res) => {

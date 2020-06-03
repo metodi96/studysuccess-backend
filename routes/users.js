@@ -23,7 +23,6 @@ router.route('/:id/update').post((req, res) => {
     .then(user => {
       user.firstname = req.body.firstname;
       user.lastname = req.body.lastname;
-      user.email = req.body.email;
       user.dateOfBirth = req.body.dateOfBirth;
       user.semester = req.body.semester;
       user.university = req.body.university;

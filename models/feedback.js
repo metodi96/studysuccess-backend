@@ -8,9 +8,10 @@ const FeedbackSchema = new mongoose.Schema({
     },
     comment: {
         type: String,
-        default: " ",
+        default: "",
         required: false
-    }
+    },
+    booking: {type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true}
 });
 
 FeedbackSchema.set('versionKey', false);
