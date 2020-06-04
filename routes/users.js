@@ -6,6 +6,7 @@ let User = require('../models/user');
 router.route('/').get((req, res) => {
     //get a list of all the users from the mongodb database 
   User.find()
+    .populate('subjectsToTakeLessonsIn')
     .then(users => res.json(users))
     .catch(err => res.status(400).json('Error: ' + err));
 });
@@ -13,12 +14,13 @@ router.route('/').get((req, res) => {
 //get a specific user
 router.route('/:id').get((req, res) => {
   User.findById(req.params.id)
+    .populate('subjectsToTakeLessonsIn')
     .then(user => res.json(user))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-//update a user 
-router.route('/:id/update').post((req, res) => {
+//update a user - fill in all the fields
+router.patch('/:id/update').post((req, res) => {
   User.findById(req.params.id)
     .then(user => {
       user.firstname = req.body.firstname;
@@ -28,6 +30,7 @@ router.route('/:id/update').post((req, res) => {
       user.university = req.body.university;
       user.studyProgram = req.body.studyProgram;
       user.degree = req.body.degree;
+      user.subjectsToTakeLessonsIn = req.body.subjectsToTakeLessonsIn;
       user.hasCertificateOfEnrolment = req.body.hasCertificateOfEnrolment;
       user.hasGradeExcerpt = req.body.hasGradeExcerpt;
 
@@ -36,6 +39,7 @@ router.route('/:id/update').post((req, res) => {
         user.pricePerHour = req.body.pricePerHour;
         user.personalStatement = req.body.personalStatement;
         user.languages = req.body.languages;
+        user.subjectsToTeach = req.body.subjectsToTeach;
       }
 
       user.save()

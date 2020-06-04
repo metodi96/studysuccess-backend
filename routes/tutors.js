@@ -9,6 +9,8 @@ router.route('/').get((req, res) => {
       hasCertificateOfEnrolment: true,
       hasGradeExcerpt: true
   })
+  .populate('subjectsToTakeLessonsIn')
+  .populate('subjectsToTeach')
     .then(users => res.json(users))
     .catch(err => res.status(400).json('Error: ' + err));
 });
@@ -18,7 +20,10 @@ router.route('/:id').get((req, res) => {
   User.find({
     hasCertificateOfEnrolment: true,
     hasGradeExcerpt: true
-    }).findById(req.params.id)
+    })
+    .populate('subjectsToTakeLessonsIn')
+    .populate('subjectsToTeach')
+    .findById(req.params.id)
     .then(user => res.json(user))
     .catch(err => res.status(400).json('Error: ' + err));
 });

@@ -44,13 +44,13 @@ const UserSchema  = new mongoose.Schema({
         enum: ['Bachelor', 'Master'],
         default: 'Bachelor'
     },
-    subjectsToTakeLessonsIn: {type: []},
+    subjectsToTakeLessonsIn: {type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subject'}]},
     avgRating: {
         type: Number, 
         default: function() {
             if (this.hasCertificateOfEnrolment && this.hasGradeExcerpt && this.feedback != undefined) {
                 var totalRating = 0;
-                for (const {rating, _} of this.feedback) {
+                for (const { rating } of this.feedback) {
                     totalRating += rating;
                 }
             return totalRating / this.feedback.length
@@ -66,13 +66,15 @@ const UserSchema  = new mongoose.Schema({
         type: Boolean
     },
     pricePerHour: {
-        type: Number
+        type: Number,
+        default: undefined
     },
     personalStatement: {
-        type: String
+        type: String,
+        default: undefined
     },
     languages: {type: [String], default: undefined},
-    subjectsToTeach: {type: [], default: undefined},
+    subjectsToTeach: {type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subject'}], default: undefined},
     feedback: {type: [{
         rating: {
         type: Number,
