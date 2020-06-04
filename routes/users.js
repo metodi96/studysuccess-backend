@@ -2,7 +2,7 @@
 const router = require('express').Router();
 let User = require('../models/user');
 
-//the first endpoint /users
+//get all users
 router.route('/').get((req, res) => {
     //get a list of all the users from the mongodb database 
   User.find()
@@ -28,11 +28,18 @@ router.route('/:id/update').post((req, res) => {
       user.university = req.body.university;
       user.studyProgram = req.body.studyProgram;
       user.degree = req.body.degree;
-      user.certificateOfEnrolment = req.body.certificateOfEnrolment;
-      user.gradeExcerpt = req.body.gradeExcerpt;
+      user.hasCertificateOfEnrolment = req.body.hasCertificateOfEnrolment;
+      user.hasGradeExcerpt = req.body.hasGradeExcerpt;
+
+      //check if user is tutor and then update the other fields
+      if(user.hasCertificateOfEnrolment && user.hasGradeExcerpt) {
+        user.pricePerHour = req.body.pricePerHour;
+        user.personalStatement = req.body.personalStatement;
+        user.languages = req.body.languages;
+      }
 
       user.save()
-        .then(() => user.certificateOfEnrolment && user.gradeExcerpt ? res.json('User updated to tutor!') : res.json('User updated!'))
+        .then(() => user.hasCertificateOfEnrolment && user.hasGradeExcerpt ? res.json('User updated to tutor!') : res.json('User updated!'))
         .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json('Error: ' + err));

@@ -44,13 +44,25 @@ const UserSchema  = new mongoose.Schema({
         enum: ['Bachelor', 'Master'],
         default: 'Bachelor'
     },
+    subjectsToTakeLessonsIn: {type: []},
     avgRating: {
-        type: Number
+        type: Number, 
+        default: function() {
+            if (this.hasCertificateOfEnrolment && this.hasGradeExcerpt && this.feedback != undefined) {
+                var totalRating = 0;
+                for (const {rating, _} of this.feedback) {
+                    totalRating += rating;
+                }
+            return totalRating / this.feedback.length
+            } else {
+                undefined
+            }
+        }
     },
-    certificateOfEnrolment: {
+    hasCertificateOfEnrolment: {
         type: Boolean
     },
-    gradeExcerpt: {
+    hasGradeExcerpt: {
         type: Boolean
     },
     pricePerHour: {
@@ -60,6 +72,7 @@ const UserSchema  = new mongoose.Schema({
         type: String
     },
     languages: {type: [String], default: undefined},
+    subjectsToTeach: {type: [], default: undefined},
     feedback: {type: [{
         rating: {
         type: Number,
