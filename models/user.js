@@ -44,27 +44,48 @@ const UserSchema  = new mongoose.Schema({
         enum: ['Bachelor', 'Master'],
         default: 'Bachelor'
     },
+    subjectsToTakeLessonsIn: {type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subject'}]},
     avgRating: {
-        type: Number
+        type: Number, 
+        default: function() {
+            if (this.hasCertificateOfEnrolment && this.hasGradeExcerpt && this.feedback != undefined) {
+                var totalRating = 0;
+                for (const { rating } of this.feedback) {
+                    totalRating += rating;
+                }
+            return totalRating / this.feedback.length
+            } else {
+                undefined
+            }
+        }
     },
-    certificateOfEnrolment: {
+    hasCertificateOfEnrolment: {
         type: Boolean
     },
-    gradeExcerpt: {
+    hasGradeExcerpt: {
         type: Boolean
     },
     pricePerHour: {
-        type: Number
+        type: Number,
+        default: undefined
     },
     personalStatement: {
-        type: String
+        type: String,
+        default: undefined
     },
-    languages: [
-        {
-            type: String
-        }
-    ],
-    
+    languages: {type: [String], default: undefined},
+    subjectsToTeach: {type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subject'}], default: undefined},
+    feedback: {type: [{
+        rating: {
+        type: Number,
+        required: false
+    },
+    comment: {
+        type: String,
+        default: "",
+        required: false
+    }
+    }], default: undefined}
 },  {
         timestamps: true,
 });

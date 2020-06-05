@@ -2,13 +2,15 @@
 const router = require('express').Router();
 let User = require('../models/user');
 
-//the first endpoint /tutors
+//get all tutors
 router.route('/').get((req, res) => {
     //get a list of all the tutors from the mongodb database 
   User.find({
-      certificateOfEnrolment: true,
-      gradeExcerpt: true
+      hasCertificateOfEnrolment: true,
+      hasGradeExcerpt: true
   })
+  .populate('subjectsToTakeLessonsIn')
+  .populate('subjectsToTeach')
     .then(users => res.json(users))
     .catch(err => res.status(400).json('Error: ' + err));
 });
@@ -16,9 +18,12 @@ router.route('/').get((req, res) => {
 //get a specific tutor
 router.route('/:id').get((req, res) => {
   User.find({
-    certificateOfEnrolment: true,
-    gradeExcerpt: true
-    }).findById(req.params.id)
+    hasCertificateOfEnrolment: true,
+    hasGradeExcerpt: true
+    })
+    .populate('subjectsToTakeLessonsIn')
+    .populate('subjectsToTeach')
+    .findById(req.params.id)
     .then(user => res.json(user))
     .catch(err => res.status(400).json('Error: ' + err));
 });

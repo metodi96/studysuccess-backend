@@ -7,17 +7,8 @@ const BookingSchema  = new mongoose.Schema({
     timeslotEnd: {type: Date},
     participantNumber: {type: Number},
     tutor: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
-    feedback: {
-        rating: {
-            type: Number,
-            default: 0
-        },
-        comment: {
-            type: String,
-            default: ""
-        }
-    },
-    subject: {type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true}
+    subject: {type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true},
+    feedbackGiven: {type: Boolean, default: false}
 },  {
         timestamps: true,
 });
