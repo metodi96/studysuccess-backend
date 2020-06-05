@@ -1,6 +1,8 @@
 //we need the express router and to require the model
 const router = require('express').Router();
 let User = require('../models/user');
+const multer = require('multer');
+const upload = multer({dest: 'uploads/'});
 
 //get all users
 router.route('/').get((req, res) => {
@@ -20,7 +22,8 @@ router.route('/:id').get((req, res) => {
 });
 
 //update a user - fill in all the fields
-router.patch('/:id/update').post((req, res) => {
+router.post('/:id/update', upload.single('userImage'), (req, res) => {
+  console.log(req.file)
   User.findById(req.params.id)
     .then(user => {
       user.firstname = req.body.firstname;
