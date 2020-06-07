@@ -29,6 +29,8 @@ app.get('/', (req, res) => {
   res.send("")
 })
 //require the routes and use them
+//make the uploads folder static
+app.use('/uploads', express.static('uploads'));
 //users router
 const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
