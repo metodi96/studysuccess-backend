@@ -2,7 +2,7 @@ let Booking = require('../models/booking');
 let User = require('../models/user');
 
 exports.bookings_get_all = (req, res) => {
-    Booking.find({ _id: req.userData.userId })
+    Booking.find({ user: req.userData.userId })
         .populate('tutor')
         .populate('subject')
         .then(bookings => res.json(bookings))
@@ -10,14 +10,14 @@ exports.bookings_get_all = (req, res) => {
 }
 
 exports.bookings_get_all_past = (req, res) => {
-    Booking.find({ _id: req.userData.userId }).where('timeslotStart').lt(new Date()).
+    Booking.find({ user: req.userData.userId }).where('timeslotStart').lt(new Date()).
         populate('tutor').
         then(booking => res.json(booking)).
         catch(err => res.status(400).json('Error: ' + err));
 }
 
 exports.bookings_get_one_past = (req, res) => {
-    Booking.find({ _id: req.userData.userId })
+    Booking.find({ user: req.userData.userId })
         .then(
             Booking.findById(req.params.id).where('timeslotStart').lt(new Date())
                 .populate('tutor')
@@ -31,7 +31,7 @@ exports.bookings_add_feedback = (req, res) => {
     const booking = req.params.id;
     const tutor = req.body.tutor;
     //first find all the bookings of the logged in user
-    Booking.find({ _id: req.userData.userId })
+    Booking.find({ user: req.userData.userId })
         .then(
             //find the one from the url params id
             Booking.findById(booking).then(booking => {
@@ -53,14 +53,14 @@ exports.bookings_add_feedback = (req, res) => {
 }
 
 exports.bookings_get_all_current = (req, res) => {
-    Booking.find({ _id: req.userData.userId }).where('timeslotStart').gt(new Date())
+    Booking.find({ user: req.userData.userId }).where('timeslotStart').gt(new Date())
         .populate('tutor')
         .then(booking => res.json(booking))
         .catch(err => res.status(400).json('Error: ' + err));
 }
 
 exports.bookings_delete_one = (req, res) => {
-    Booking.find({ _id: req.userData.userId })
+    Booking.find({ user: req.userData.userId })
         .then(
             Booking.findByIdAndDelete(req.params.id).where('timeslotStart').gt(new Date())
                 .then(() => res.json('Booking deleted.'))
@@ -84,7 +84,7 @@ exports.bookings_add = (req, res) => {
 }
 
 exports.bookings_get_one = (req, res) => {
-    Booking.find({ _id: req.userData.userId })
+    Booking.find({ user: req.userData.userId })
         .then(
             Booking.findById(req.params.id)
                 .populate('tutor')
