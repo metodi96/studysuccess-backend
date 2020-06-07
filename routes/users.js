@@ -2,26 +2,50 @@
 const router = require('express').Router();
 let User = require('../models/user');
 const multer = require('multer');
-const upload = multer({dest: 'uploads/'});
+//saving the image's original name 
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, './uploads/');
+  }, 
+  filename: function(req, file, cb) {    
+    cb(null, new Date().toISOString().replace(/:|\./g,'') + ' - ' + file.originalname);
+  }
+});
+// only accept jpeg and png files
+const fileFilter = (req, file, cb) => {  
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    cb(null, true);
+  } else {
+    cb(null, false); //new Error('The image format is not supported!')
+  }  
+};
+
+const upload = multer({
+  storage: storage, 
+  limits: {
+  fileSize: 1024 * 1024 * 2 //only accept files up to 2MB
+  },
+  fileFilter: fileFilter
+});
 
 //get all users
 router.route('/').get((req, res) => {
     //get a list of all the users from the mongodb database 
-  User.find()
-    .populate('subjectsToTakeLessonsIn')
-    .then(users => res.json(users))
-    .catch(err => res.status(400).json('Error: ' + err));
+  User.find()  
+   .populate('subjectsToTakeLessonsIn')
+   .then(users => res.json(users))
+   .catch(err => res.status(400).json('Error: ' + err));
 });
 
 //get a specific user
 router.route('/:id').get((req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.params.id)    
     .populate('subjectsToTakeLessonsIn')
     .then(user => res.json(user))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-//update a user - fill in all the fields
+//update a user, upload an image - fill in all the fields
 router.post('/:id/update', upload.single('userImage'), (req, res) => {
   console.log(req.file)
   User.findById(req.params.id)
@@ -36,6 +60,7 @@ router.post('/:id/update', upload.single('userImage'), (req, res) => {
       user.subjectsToTakeLessonsIn = req.body.subjectsToTakeLessonsIn;
       user.hasCertificateOfEnrolment = req.body.hasCertificateOfEnrolment;
       user.hasGradeExcerpt = req.body.hasGradeExcerpt;
+      user.userImage = req.file.path;
 
       //check if user is tutor and then update the other fields
       if(user.hasCertificateOfEnrolment && user.hasGradeExcerpt) {
@@ -73,3 +98,4 @@ router.route('/add').post((req, res) => {
 });
 
 module.exports = router;
+
