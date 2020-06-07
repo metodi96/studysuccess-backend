@@ -20,6 +20,10 @@ const UserSchema  = new mongoose.Schema({
         type: mongoose.SchemaTypes.Email,
         required: true
     },
+    password: {
+        type: String,
+        required: true,
+    },
     dateOfBirth: {
         type: Date,
         required: true

@@ -1,5 +1,7 @@
 //we need the express router and to require the model
 const router = require('express').Router();
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 let User = require('../models/user');
 const multer = require('multer');
 //saving the image's original name 
@@ -36,6 +38,9 @@ router.route('/').get((req, res) => {
    .then(users => res.json(users))
    .catch(err => res.status(400).json('Error: ' + err));
 });
+
+
+
 
 //get a specific user
 router.route('/:id').get((req, res) => {
@@ -79,22 +84,31 @@ router.post('/:id/update', upload.single('userImage'), (req, res) => {
 
 //this handles incoming http post requests
 //users/add
-router.route('/add').post((req, res) => {
-  const firstname = req.body.firstname;
-  const lastname = req.body.lastname;
-  const email = req.body.email;
-  const dateOfBirth = req.body.dateOfBirth;
-  const semester = req.body.semester;
-  const university = req.body.university;
-  const studyProgram = req.body.studyProgram;
-  const degree = req.body.degree;
- 
+router.route('/signup').post((req, res) => {
+  bcrypt.hash(req.body.password, 10, (err, hash) => {
+    if (err) {
+      return res.status(500).json({
+        error: err
+      });
+    } else {
+      const firstname = req.body.firstname;
+      const lastname = req.body.lastname;
+      const email = req.body.email;
+      const password = hash;
+      const dateOfBirth = req.body.dateOfBirth;
+      const semester = req.body.semester;
+      const university = req.body.university;
+      const studyProgram = req.body.studyProgram;
+      const degree = req.body.degree;
 
-  const newUser = new User({firstname, lastname, email, dateOfBirth, semester, university, studyProgram, degree});
 
-  newUser.save()
-    .then(() => res.json('User added!'))
-    .catch(err => res.status(400).json('Error: ' + err));
+      const newUser = new User({ firstname, lastname, email, password, dateOfBirth, semester, university, studyProgram, degree });
+
+      newUser.save()
+        .then(() => res.status(201).json('User added!'))
+        .catch(err => res.status(500).json('Error: ' + err));
+    }
+  })
 });
 
 module.exports = router;

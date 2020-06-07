@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 //environment variables in dotenv file
 require('dotenv').config();
