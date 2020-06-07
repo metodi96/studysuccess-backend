@@ -3,6 +3,8 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 let User = require('../models/user');
 const multer = require('multer');
+const jwt = require('jsonwebtoken');
+const checkAuth = require('../middleware/check-auth');
 
 //saving the image's original name 
 const storage = multer.diskStorage({
@@ -31,27 +33,28 @@ const upload = multer({
   fileFilter: fileFilter
 });
 
-//get all users
-router.route('/').get((req, res) => {
+//get all users - we don't need that for now, just for testing purposes in postman
+/*
+router.get('/', checkAuth, (req, res) => {
   //get a list of all the users from the mongodb database 
   User.find()
     .populate('subjectsToTakeLessonsIn')
     .then(users => res.json(users))
     .catch(err => res.status(400).json('Error: ' + err));
-});
+});*/
 
 //get a specific user
-router.route('/:id').get((req, res) => {
-  User.findById(req.params.id)
+router.get('/profile', checkAuth, (req, res) => {
+  User.findById(req.userData.userId)
     .populate('subjectsToTakeLessonsIn')
     .then(user => res.json(user))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
 //update a user, upload an image - fill in all the fields
-router.post('/:id/update', upload.single('userImage'), (req, res) => {
+router.post('/profile/update', checkAuth, upload.single('userImage'), (req, res) => {
   console.log(req.file)
-  User.findById(req.params.id)
+  User.findById(req.userData.userId)
     .then(user => {
       user.firstname = req.body.firstname;
       user.lastname = req.body.lastname;
@@ -80,9 +83,8 @@ router.post('/:id/update', upload.single('userImage'), (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-//this handles incoming http post requests
-//users/add
-router.route('/signup').post((req, res) => {
+//users/signup
+router.post('/signup', (req, res) => {
   bcrypt.hash(req.body.password, 10, (err, hash) => {
     if (err) {
       return res.status(500).json({
@@ -124,8 +126,16 @@ router.post('/login', (req, res) => {
             });
           }
           if (result) {
+            const token = jwt.sign({
+              email: user.email,
+              userId: user._id
+            }, process.env.JWT_KEY,
+            {
+              expiresIn: '1h'
+            });
             return res.status(200).json({
-              message: 'Authentication successful'
+              message: 'Authentication successful',
+              token: token
             });
           }
           return res.status(401).json({
