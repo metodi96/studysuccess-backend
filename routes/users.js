@@ -1,50 +1,48 @@
 //we need the express router and to require the model
 const router = require('express').Router();
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 let User = require('../models/user');
 const multer = require('multer');
+
 //saving the image's original name 
 const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
+  destination: function (req, file, cb) {
     cb(null, './uploads/');
-  }, 
-  filename: function(req, file, cb) {    
-    cb(null, new Date().toISOString().replace(/:|\./g,'') + ' - ' + file.originalname);
+  },
+  filename: function (req, file, cb) {
+    cb(null, new Date().toISOString().replace(/:|\./g, '') + ' - ' + file.originalname);
   }
 });
+
 // only accept jpeg and png files
-const fileFilter = (req, file, cb) => {  
+const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
     cb(null, true);
   } else {
     cb(null, false); //new Error('The image format is not supported!')
-  }  
+  }
 };
 
 const upload = multer({
-  storage: storage, 
+  storage: storage,
   limits: {
-  fileSize: 1024 * 1024 * 2 //only accept files up to 2MB
+    fileSize: 1024 * 1024 * 2 //only accept files up to 2MB
   },
   fileFilter: fileFilter
 });
 
 //get all users
 router.route('/').get((req, res) => {
-    //get a list of all the users from the mongodb database 
-  User.find()  
-   .populate('subjectsToTakeLessonsIn')
-   .then(users => res.json(users))
-   .catch(err => res.status(400).json('Error: ' + err));
+  //get a list of all the users from the mongodb database 
+  User.find()
+    .populate('subjectsToTakeLessonsIn')
+    .then(users => res.json(users))
+    .catch(err => res.status(400).json('Error: ' + err));
 });
-
-
-
 
 //get a specific user
 router.route('/:id').get((req, res) => {
-  User.findById(req.params.id)    
+  User.findById(req.params.id)
     .populate('subjectsToTakeLessonsIn')
     .then(user => res.json(user))
     .catch(err => res.status(400).json('Error: ' + err));
@@ -68,7 +66,7 @@ router.post('/:id/update', upload.single('userImage'), (req, res) => {
       user.userImage = req.file.path;
 
       //check if user is tutor and then update the other fields
-      if(user.hasCertificateOfEnrolment && user.hasGradeExcerpt) {
+      if (user.hasCertificateOfEnrolment && user.hasGradeExcerpt) {
         user.pricePerHour = req.body.pricePerHour;
         user.personalStatement = req.body.personalStatement;
         user.languages = req.body.languages;
@@ -110,6 +108,34 @@ router.route('/signup').post((req, res) => {
     }
   })
 });
+
+router.post('/login', (req, res) => {
+  User.findOne({ email: req.body.email })
+    .then(user => {
+      if (user === null) {
+        return res.status(401).json({
+          message: 'Authentication failed - no user found with this email'
+        })
+      } else {
+        bcrypt.compare(req.body.password, user.password, (err, result) => {
+          if (err) {
+            return res.status(401).json({
+              message: 'Authentication failed'
+            });
+          }
+          if (result) {
+            return res.status(200).json({
+              message: 'Authentication successful'
+            });
+          }
+          return res.status(401).json({
+            message: 'Authentication failed - invalid password'
+          });
+        })
+      }
+    })
+    .catch(err => res.status(500).json('Error: ' + err));
+})
 
 module.exports = router;
 
