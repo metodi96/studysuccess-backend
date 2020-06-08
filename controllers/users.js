@@ -18,7 +18,6 @@ exports.users_get_profile = (req, res) => {
 }
 
 exports.users_update_profile = (req, res) => {
-    console.log(req.file)
     User.findById(req.userData.userId)
         .then(user => {
             user.firstname = req.body.firstname;
@@ -31,7 +30,9 @@ exports.users_update_profile = (req, res) => {
             user.subjectsToTakeLessonsIn = req.body.subjectsToTakeLessonsIn;
             user.hasCertificateOfEnrolment = req.body.hasCertificateOfEnrolment;
             user.hasGradeExcerpt = req.body.hasGradeExcerpt;
-            user.userImage = req.file.path;
+            if(req.file != undefined) {
+                user.userImage = req.file.path;
+            }
 
             //check if user is tutor and then update the other fields
             if (user.hasCertificateOfEnrolment && user.hasGradeExcerpt) {
