@@ -15,11 +15,12 @@ exports.tutors_get_all = (req, res) => {
 exports.tutors_get_one = (req, res) => {
     User.find({
         hasCertificateOfEnrolment: true,
-        hasGradeExcerpt: true
+        hasGradeExcerpt: true,
+        _id: req.params.tutorId
     })
         .populate('subjectsToTakeLessonsIn')
         .populate('subjectsToTeach')
-        .findById(req.params.id)
+        //.findById(req.params.tutorId)
         .then(user => res.json(user))
         .catch(err => res.status(400).json('Error: ' + err));
 }
