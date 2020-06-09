@@ -2,7 +2,7 @@
 const router = require('express').Router();
 const multer = require('multer');
 const checkAuth = require('../middleware/check-auth');
-const UsersController = require('../controllers/users');
+const AuthController = require('../controllers/auth');
 
 //saving the image's original name 
 const storage = multer.diskStorage({
@@ -31,19 +31,11 @@ const upload = multer({
   fileFilter: fileFilter
 });
 
-//get all users - we don't need that for now, just for testing purposes in postman
-//router.get('/', checkAuth, UsersController.users_get_all);
-
+router.post('/signup', AuthController.signup);
+router.post('/login', AuthController.login);
 //get a specific user
-router.get('/profile', checkAuth, UsersController.users_get_profile);
-
+router.get('/profile', checkAuth, AuthController.get_profile);
 //update a user, upload an image - fill in all the fields
-router.put('/profile/update', checkAuth, upload.single('userImage'), UsersController.users_update_profile);
-
-//users/signup
-router.post('/signup', UsersController.users_signup);
-
-router.post('/login', UsersController.users_login);
+router.put('/profile/update', checkAuth, upload.single('userImage'), AuthController.update_profile);
 
 module.exports = router;
-
