@@ -1,41 +1,17 @@
-//we need the express router and to require the model
+//we need the express router
 const router = require('express').Router();
-let Subject = require('../models/subject');
+const SubjectsController = require('../controllers/subjects');
 
-//the first endpoint /subjects
-router.route('/').get((req, res) => {
-    //get a list of all the subjects from the mongodb database 
-    //return a promise
-  Subject.find()
-    .then(subjects => res.json(subjects))
-    .catch(err => res.status(400).json('Error: ' + err));
-});
-
-//this handles incoming http post requests
-router.route('/add').post((req, res) => {
-  const name = req.body.name;
-  const description = req.body.description;
-
-  const newSubject = new Subject({name, description});
-
-  newSubject.save()
-    .then(() => res.json('Subject added!'))
-    .catch(err => res.status(400).json('Error: ' + err));
-});
+//get all the subjects
+router.get('/', SubjectsController.subjects_get_all);
 
 //get a specific subject
-router.route('/:id').get((req, res) => {
-    Subject.findById(req.params.id)
-    
-      .then(subject => res.json(subject))
-      .catch(err => res.status(400).json('Error: ' + err));
-  });
-  
- //delete a specific subject 
-  router.route('/:id').delete((req, res) => {
-    Subject.findByIdAndDelete(req.params.id)
-      .then(() => res.json('Subject deleted.'))
-      .catch(err => res.status(400).json('Error: ' + err));
-  });
+router.get('/:id', SubjectsController.subjects_get_one);
 
-  module.exports = router;
+//add a subject
+router.post('/add', SubjectsController.subjects_add);
+
+//delete a specific subject 
+router.delete('/:id', SubjectsController.subjects_delete_one);
+
+module.exports = router;

@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 require('mongoose-type-email');
 
 // define the user schema
-const UserSchema  = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
     firstname: {
         type: String,
         required: true,
@@ -48,16 +48,16 @@ const UserSchema  = new mongoose.Schema({
         enum: ['Bachelor', 'Master'],
         default: 'Bachelor'
     },
-    subjectsToTakeLessonsIn: {type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subject'}]},
+    subjectsToTakeLessonsIn: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subject' }] },
     avgRating: {
-        type: Number, 
-        default: function() {
+        type: Number,
+        default: function () {
             if (this.hasCertificateOfEnrolment && this.hasGradeExcerpt && this.feedback != undefined) {
                 var totalRating = 0;
                 for (const { rating } of this.feedback) {
                     totalRating += rating;
                 }
-            return totalRating / this.feedback.length
+                return totalRating / this.feedback.length
             } else {
                 undefined
             }
@@ -77,22 +77,24 @@ const UserSchema  = new mongoose.Schema({
         type: String,
         default: undefined
     },
-    languages: {type: [String], default: undefined},
-    subjectsToTeach: {type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subject'}], default: undefined},
-    feedback: {type: [{
-        rating: {
-        type: Number,
-        required: false
+    languages: { type: [String], default: undefined },
+    subjectsToTeach: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subject' }], default: undefined },
+    feedback: {
+        type: [{
+            rating: {
+                type: Number,
+                required: false
+            },
+            comment: {
+                type: String,
+                default: "",
+                required: false
+            }
+        }], default: undefined
     },
-    comment: {
-        type: String,
-        default: "",
-        required: false
-    }
-    }], default: undefined},
-    userImage: {type: String, required: true}
-},  {
-        timestamps: true,
+    userImage: { type: String }
+}, {
+    timestamps: true,
 });
 
 UserSchema.set('versionKey', false);
