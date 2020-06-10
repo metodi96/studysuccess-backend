@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 
 //environment variables in dotenv file
 require('dotenv').config();
@@ -32,8 +31,8 @@ app.get('/', (req, res) => {
 //make the uploads folder static
 app.use('/uploads', express.static('uploads'));
 //users router
-const usersRouter = require('./routes/users');
-app.use('/users', usersRouter);
+const authRouter = require('./routes/auth');
+app.use('/', authRouter);
 //tutors router
 const tutorsRouter = require('./routes/tutors');
 app.use('/tutors', tutorsRouter);

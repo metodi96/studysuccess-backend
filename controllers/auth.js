@@ -2,22 +2,14 @@ let User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-exports.users_get_all = (req, res) => {
-    //get a list of all the users from the mongodb database 
-    User.find()
-        .populate('subjectsToTakeLessonsIn')
-        .then(users => res.json(users))
-        .catch(err => res.status(400).json('Error: ' + err));
-}
-
-exports.users_get_profile = (req, res) => {
+exports.get_profile = (req, res) => {
     User.findById(req.userData.userId)
         .populate('subjectsToTakeLessonsIn')
         .then(user => res.json(user))
         .catch(err => res.status(400).json('Error: ' + err));
 }
 
-exports.users_update_profile = (req, res) => {
+exports.update_profile = (req, res) => {
     User.findById(req.userData.userId)
         .then(user => {
             user.firstname = req.body.firstname;
@@ -49,7 +41,7 @@ exports.users_update_profile = (req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 }
 
-exports.users_signup = (req, res) => {
+exports.signup = (req, res) => {
     bcrypt.hash(req.body.password, 10, (err, hash) => {
         if (err) {
             return res.status(500).json({
@@ -76,7 +68,7 @@ exports.users_signup = (req, res) => {
     })
 }
 
-exports.users_login = (req, res) => {
+exports.login = (req, res) => {
     User.findOne({ email: req.body.email })
         .then(user => {
             if (user === null) {
@@ -98,7 +90,6 @@ exports.users_login = (req, res) => {
                             {
                                 expiresIn: '1h'
                             });
-                            console.log(req.userData);
                         return res.status(200).json({
                             message: 'Authentication successful',
                             token: token
