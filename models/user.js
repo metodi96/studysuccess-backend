@@ -22,7 +22,7 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        //required: true,
     },
     dateOfBirth: {
         type: Date,
@@ -91,6 +91,19 @@ const UserSchema = new mongoose.Schema({
                 required: false
             }
         }], default: undefined
+    },
+    timePreferences: {
+        type: [{
+            day: String,
+            startTime: {
+                hours: Number,
+                minutes: Number
+            },
+            endTime: {
+                hours: Number,
+                minutes: Number
+            }
+        }]
     },
     userImage: { type: String }
 }, {

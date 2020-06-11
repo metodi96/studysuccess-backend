@@ -4,8 +4,10 @@ const TutorsController = require('../controllers/tutors');
 
 //get all tutors
 router.get('/', TutorsController.tutors_get_all);
-
-//get a specific tutor
-router.get('/:id', TutorsController.tutors_get_one);
+router.put('/:tutorId/timePreferences', TutorsController.tutors_add_time_prefs);
+router.get('/:tutorId/timePreferences', TutorsController.tutors_get_time_prefs);
+router.get('/:subjectId', TutorsController.tutors_get_for_subject);
+router.get('/:subjectId/filtered', TutorsController.tutors_get_filtered);
+router.get('/:subjectId/filtered/:tutorId', TutorsController.tutors_get_one);
 
 module.exports = router;
