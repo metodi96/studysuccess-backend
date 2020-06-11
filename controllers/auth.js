@@ -42,31 +42,36 @@ exports.update_profile = (req, res) => {
 }
 
 exports.signup = (req, res) => {
-    bcrypt.hash(req.body.password, 10, (err, hash) => {
-        if (err) {
-            return res.status(500).json({
-                error: err
+    User.find({email: req.body.email})
+        .then(user => {
+          if (user.length >= 1){
+            return res.status(409).json({
+              message: "Mail exists"
             });
-        } else {
-            const firstname = req.body.firstname;
-            const lastname = req.body.lastname;
-            const email = req.body.email;
-            const password = hash;
-            const dateOfBirth = req.body.dateOfBirth;
-            const semester = req.body.semester;
-            const university = req.body.university;
-            const studyProgram = req.body.studyProgram;
-            const degree = req.body.degree;
-
-
-            const newUser = new User({ firstname, lastname, email, password, dateOfBirth, semester, university, studyProgram, degree });
-
-            newUser.save()
-                .then(() => res.status(201).json('User added!'))
-                .catch(err => res.status(500).json('Error: ' + err));
-        }
-    })
-}
+          }else{
+            bcrypt.hash(req.body.password, 10, (err, hash) => {
+              if (err) {
+                return res.status(500).json({
+                  error: err
+                });
+              } else {
+                const firstname = req.body.firstname;
+                const lastname = req.body.lastname;
+                const email = req.body.email;
+                const password = hash;
+                const university = req.body.university;
+          
+          
+                const newUser = new User({ firstname, lastname, email, password, university});
+          
+                newUser.save()
+                  .then(() => res.status(201).json('User added!'))
+                  .catch(err => res.status(500).json('Error: ' + err));
+              }
+            })
+          }
+        })
+  }
 
 exports.login = (req, res) => {
     User.findOne({ email: req.body.email })

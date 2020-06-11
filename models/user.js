@@ -21,12 +21,10 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
     password: {
-        type: String,
-        //required: true,
+        type: String
     },
     dateOfBirth: {
-        type: Date,
-        required: true
+        type: Date
     },
     semester: {
         type: Number,
@@ -40,13 +38,11 @@ const UserSchema = new mongoose.Schema({
     },
     studyProgram: {
         type: String,
-        enum: ['Informatics', 'Information Systems', 'BWL', 'Bioinformatics'],
-        default: 'Information Systems'
+        enum: ['Informatics', 'Information Systems', 'Data Engeneering and Analytics', 'Bioinformatics']        
     },
     degree: {
         type: String,
-        enum: ['Bachelor', 'Master'],
-        default: 'Bachelor'
+        enum: ['Bachelor', 'Master']
     },
     subjectsToTakeLessonsIn: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subject' }] },
     avgRating: {
