@@ -33,6 +33,7 @@ const upload = multer({
 
 router.post('/signup', AuthController.signup);
 router.post('/login', AuthController.login);
+router.post('/logout', AuthController.logout);
 //get a specific user
 router.get('/profile', checkAuth, AuthController.get_profile);
 //update a user, upload an image - fill in all the fields

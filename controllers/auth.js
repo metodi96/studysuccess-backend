@@ -22,7 +22,7 @@ exports.update_profile = (req, res) => {
             user.subjectsToTakeLessonsIn = req.body.subjectsToTakeLessonsIn;
             user.hasCertificateOfEnrolment = req.body.hasCertificateOfEnrolment;
             user.hasGradeExcerpt = req.body.hasGradeExcerpt;
-            if(req.file != undefined) {
+            if (req.file != undefined) {
                 user.userImage = req.file.path;
             }
 
@@ -42,36 +42,36 @@ exports.update_profile = (req, res) => {
 }
 
 exports.signup = (req, res) => {
-    User.find({email: req.body.email})
+    User.find({ email: req.body.email })
         .then(user => {
-          if (user.length >= 1){
-            return res.status(409).json({
-              message: "Mail exists"
-            });
-          }else{
-            bcrypt.hash(req.body.password, 10, (err, hash) => {
-              if (err) {
-                return res.status(500).json({
-                  error: err
+            if (user.length >= 1) {
+                return res.status(409).json({
+                    message: "Mail exists"
                 });
-              } else {
-                const firstname = req.body.firstname;
-                const lastname = req.body.lastname;
-                const email = req.body.email;
-                const password = hash;
-                const university = req.body.university;
-          
-          
-                const newUser = new User({ firstname, lastname, email, password, university});
-          
-                newUser.save()
-                  .then(() => res.status(201).json('User added!'))
-                  .catch(err => res.status(500).json('Error: ' + err));
-              }
-            })
-          }
+            } else {
+                bcrypt.hash(req.body.password, 10, (err, hash) => {
+                    if (err) {
+                        return res.status(500).json({
+                            error: err
+                        });
+                    } else {
+                        const firstname = req.body.firstname;
+                        const lastname = req.body.lastname;
+                        const email = req.body.email;
+                        const password = hash;
+                        const university = req.body.university;
+
+
+                        const newUser = new User({ firstname, lastname, email, password, university });
+
+                        newUser.save()
+                            .then(() => res.status(201).json('User added!'))
+                            .catch(err => res.status(500).json('Error: ' + err));
+                    }
+                })
+            }
         })
-  }
+}
 
 exports.login = (req, res) => {
     User.findOne({ email: req.body.email })
@@ -108,3 +108,7 @@ exports.login = (req, res) => {
         })
         .catch(err => res.status(500).json('Error: ' + err));
 }
+
+exports.logout = (req, res) => {
+    res.status(200).send({ token: null });
+};
