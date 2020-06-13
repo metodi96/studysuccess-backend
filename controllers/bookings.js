@@ -12,6 +12,7 @@ exports.bookings_get_all = (req, res) => {
 exports.bookings_get_all_past = (req, res) => {
     Booking.find({ user: req.userData.userId }).where('timeslotStart').lt(new Date()).
         populate('tutor').
+        populate('subject').
         then(booking => res.json(booking)).
         catch(err => res.status(400).json('Error: ' + err));
 }
@@ -55,6 +56,7 @@ exports.bookings_add_feedback = (req, res) => {
 exports.bookings_get_all_current = (req, res) => {
     Booking.find({ user: req.userData.userId }).where('timeslotStart').gt(new Date())
         .populate('tutor')
+        .populate('subject')
         .then(booking => res.json(booking))
         .catch(err => res.status(400).json('Error: ' + err));
 }
