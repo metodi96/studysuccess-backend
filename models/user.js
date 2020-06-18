@@ -90,7 +90,7 @@ const UserSchema = new mongoose.Schema({
     },
     timePreferences: {
         type: [{
-            day: String,
+            day: Number,
             startTime: {
                 hours: Number,
                 minutes: Number

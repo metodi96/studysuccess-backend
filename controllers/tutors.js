@@ -53,6 +53,19 @@ exports.tutors_get_for_subject = (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err))
 }
 
+exports.tutors_get_one_for_subject = (req, res) => {
+    User.find({
+    hasCertificateOfEnrolment: true,
+    hasGradeExcerpt: true
+    })
+    .populate('subjectsToTakeLessonsIn')
+    .populate('subjectsToTeach')
+    .find({'subjectsToTeach' :  req.params.subjectId})
+    .findOne({_id: req.params.tutorId})
+    .then(tutor => res.json(tutor))
+    .catch(err => res.status(400).json('Error: ' + err))
+}
+
 exports.tutors_get_filtered = (req, res) => {
     User.find({
         hasCertificateOfEnrolment: true,
