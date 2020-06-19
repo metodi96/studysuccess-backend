@@ -6,6 +6,10 @@ const BookingsController = require('../controllers/bookings');
 //get a list of all the bookings from the mongodb database of the logged in user
 router.get('/', checkAuth, BookingsController.bookings_get_all);
 
+router.post('/pay', checkAuth, BookingsController.bookings_pay);
+
+router.get('/success', checkAuth, BookingsController.bookings_add_success)
+
 //post a booking
 router.post('/add', checkAuth, BookingsController.bookings_add);
 

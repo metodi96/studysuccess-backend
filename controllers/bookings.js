@@ -1,5 +1,6 @@
 let Booking = require('../models/booking');
 let User = require('../models/user');
+const paypal = require('paypal-rest-sdk');
 
 exports.bookings_get_all = (req, res) => {
     Booking.find({ user: req.userData.userId })
@@ -70,7 +71,96 @@ exports.bookings_delete_one = (req, res) => {
         .catch(err => res.status(400).json('Error: ' + err))
 }
 
+exports.bookings_pay = (req, res) => {
+    const create_payment_json = {
+        "intent": "sale",
+        "payer": {
+            "payment_method": "paypal"
+        },
+        "redirect_urls": {
+            "return_url": `http://localhost:3000/bookings/success?timeslotStart=${req.body.timeslotStart}&timeslotEnd=${req.body.timeslotEnd}&participantNumber=${req.body.participantNumber}&tutor=${req.body.tutor}&subject=${req.body.subject}`,
+            "cancel_url": "http://localhost:3000/bookings/cancel"
+        },
+        "transactions": [{
+            "item_list": {
+                "items": [{
+                    "name": req.body.firstname,
+                    "sku": "001",
+                    "price": req.body.price,
+                    "currency": "EUR",
+                    "quantity": 1,
+                }]
+            },
+            "amount": {
+                "currency": "EUR",
+                "total": req.body.price
+            },
+            "description": `${req.body.timeslotStart} EUR for a tutorial with ${req.body.firstname} ${req.body.lastname}.`
+        }]
+    };
+
+    paypal.payment.create(create_payment_json, function (error, payment) {
+        if (error) {
+            throw error;
+        } else {
+            payment.links.forEach(paymentLink => {
+                if (paymentLink.rel === 'approval_url') {
+                    res.json({ forwardLink: `${paymentLink.href}` });
+                }
+            });
+        }
+    });
+}
+
+exports.bookings_add_success = (req, res) => {
+    const payerId = req.query.PayerID;
+    const paymentId = req.query.paymentId;
+
+    const execute_payment_json = {
+        "payer_id": payerId,
+        "transactions": [{
+            "amount": {
+                "currency": "EUR",
+                "total": "30"
+            }
+        }]
+    };
+
+    paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+        if (error) {
+            console.log(error.response);
+            throw error;
+        } else {
+            console.log(JSON.stringify(payment));
+            res.send('Success');
+            const timeslotStart = req.query.timeslotStart;
+            const timeslotEnd =  req.query.timeslotEnd;
+            const participantNumber =  req.query.participantNumber;
+            const user = req.userData.userId;
+            const tutor =  req.query.tutor;
+            const subject =  req.query.subject;
+            console.log(timeslotStart)
+            console.log(timeslotEnd)
+            console.log(participantNumber)
+            console.log(tutor)
+            console.log(user)
+            console.log(subject)
+
+            const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, user, tutor, subject });
+
+            newBooking.save()
+                .then(() => res.send('Booking added successfully!'))
+                .catch(err => console.log(err));
+        }
+    });
+}
+
+exports.bookings_add_cancel = (req, res) => {
+    res.status(200).json('Transaction cancelled.')
+}
+
 exports.bookings_add = (req, res) => {
+
     const timeslotStart = req.body.timeslotStart;
     const timeslotEnd = req.body.timeslotEnd;
     const participantNumber = req.body.participantNumber;
@@ -83,7 +173,8 @@ exports.bookings_add = (req, res) => {
     newBooking.save()
         .then(() => res.json('Booking added!'))
         .catch(err => res.status(400).json('Error: ' + err));
-}
+};
+
 
 exports.bookings_get_one = (req, res) => {
     Booking.find({ user: req.userData.userId })
@@ -103,7 +194,7 @@ exports.bookings_update_one = (req, res) => {
         booking.timeslotStart = req.body.timeslotStart;
         booking.timeslotEnd = req.body.timeslotEnd;
         booking.participantNumber = req.body.participantNumber;
-   
+
         booking.save()
           .then(() => res.json('Booking updated!'))
           .catch(err => res.status(400).json('Error: ' + err));
