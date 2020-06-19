@@ -132,24 +132,16 @@ exports.bookings_add_success = (req, res) => {
             throw error;
         } else {
             console.log(JSON.stringify(payment));
-            res.send('Success');
             const timeslotStart = req.query.timeslotStart;
             const timeslotEnd =  req.query.timeslotEnd;
             const participantNumber =  req.query.participantNumber;
             const user = req.userData.userId;
             const tutor =  req.query.tutor;
             const subject =  req.query.subject;
-            console.log(timeslotStart)
-            console.log(timeslotEnd)
-            console.log(participantNumber)
-            console.log(tutor)
-            console.log(user)
-            console.log(subject)
-
             const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, user, tutor, subject });
 
             newBooking.save()
-                .then(() => res.send('Booking added successfully!'))
+                .then((booking) => res.status(200).json(`Booking added successfully: ${booking}`))
                 .catch(err => console.log(err));
         }
     });
@@ -158,23 +150,6 @@ exports.bookings_add_success = (req, res) => {
 exports.bookings_add_cancel = (req, res) => {
     res.status(200).json('Transaction cancelled.')
 }
-
-exports.bookings_add = (req, res) => {
-
-    const timeslotStart = req.body.timeslotStart;
-    const timeslotEnd = req.body.timeslotEnd;
-    const participantNumber = req.body.participantNumber;
-    const user = req.userData.userId;
-    const tutor = req.body.tutor;
-    const subject = req.body.subject;
-
-    const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, user, tutor, subject });
-
-    newBooking.save()
-        .then(() => res.json('Booking added!'))
-        .catch(err => res.status(400).json('Error: ' + err));
-};
-
 
 exports.bookings_get_one = (req, res) => {
     Booking.find({ user: req.userData.userId })

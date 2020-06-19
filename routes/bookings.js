@@ -10,9 +10,6 @@ router.post('/pay', checkAuth, BookingsController.bookings_pay);
 
 router.get('/success', checkAuth, BookingsController.bookings_add_success)
 
-//post a booking
-router.post('/add', checkAuth, BookingsController.bookings_add);
-
 //get past bookings of the logged in user
 router.get('/past', checkAuth, BookingsController.bookings_get_all_past);
 
