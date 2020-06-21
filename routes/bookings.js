@@ -16,6 +16,12 @@ router.get('/past', checkAuth, BookingsController.bookings_get_all_past);
 //get the current bookings of the logged in user
 router.get('/current', checkAuth, BookingsController.bookings_get_all_current);
 
+//post invitation to another user using their email
+router.post('/current/invite', checkAuth, BookingsController.bookings_current_invite);
+
+//get all invitations for the current booking of the logged in user
+router.get('/current/:id/invitations', checkAuth, BookingsController.bookings_current_get_invitations);
+
 //delete a specific current booking
 router.delete('/current/:id/cancel', checkAuth, BookingsController.bookings_delete_one);
 

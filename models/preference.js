@@ -1,7 +1,7 @@
 "use strict";
 const mongoose = require('mongoose');
 
-// define the subject schema
+// define the time preference schema
 const TimePreferenceSchema = new mongoose.Schema({
     tutor: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
     day: Number,

@@ -1,6 +1,7 @@
 let Booking = require('../models/booking');
 let User = require('../models/user');
 let TimePreference = require('../models/preference');
+let Invitation = require('../models/invitation');
 const paypal = require('paypal-rest-sdk');
 
 exports.bookings_get_all = (req, res) => {
@@ -70,6 +71,38 @@ exports.bookings_delete_one = (req, res) => {
                 .then(() => res.json('Booking deleted.'))
                 .catch(err => res.status(400).json('Error: ' + err)))
         .catch(err => res.status(400).json('Error: ' + err))
+}
+
+exports.bookings_current_invite = (req, res) => {
+    const fromUser = req.userData.userId;
+    const booking = req.body.bookingId;
+    User.findOne({ email: req.body.friendEmail })
+        .then(user => {
+            const newInvitation = new Invitation({ fromUser, toUser: user._id, booking })
+            newInvitation
+                .save()
+                .then(() =>
+                    Booking.updateOne({ _id: booking }, { $inc: { 'participantNumber': 1 } }, { new: true })
+                        .then(res => {
+                            res.status(200).json('Invitation created and participant number of booking incremented by 1')
+                        })
+                        .catch(err => res.status(400).json('Error with incrementing participant number: ' + err))
+                )
+                .catch(err => {
+                    console.log('Could not save invitation :(')
+                    res.status(400).json('Error: ' + err)
+                })
+        })
+        .catch(err => {
+            console.log('I dont know whats going on')
+            res.status(400).json('Error with finding user by email: ' + err)});
+}
+
+exports.bookings_current_get_invitations = (req, res) => {
+    Invitation.find({ booking: req.params.id })
+        .populate('toUser')
+        .then(invitations => res.json(invitations))
+        .catch(err => res.status(400).json('Error: ' + err));
 }
 
 exports.bookings_pay = (req, res) => {
