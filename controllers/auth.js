@@ -32,6 +32,7 @@ exports.update_profile = (req, res) => {
                 user.personalStatement = req.body.personalStatement;
                 user.languages = req.body.languages;
                 user.subjectsToTeach = req.body.subjectsToTeach;
+                user.timePreferences = req.body.timePreferences;
             }
 
             user.save()
@@ -112,3 +113,9 @@ exports.login = (req, res) => {
 exports.logout = (req, res) => {
     res.status(200).send({ token: null });
 };
+
+exports.timepreference_delete_one = (req, res) => {
+    TimePreference.findByIdAndDelete(req.params.timePreferenceId)
+        .then(() => res.json('Time preference deleted.'))
+        .catch(err => res.status(400).json('Error: ' + err));
+}

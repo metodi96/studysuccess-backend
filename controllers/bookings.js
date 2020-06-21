@@ -1,5 +1,6 @@
 let Booking = require('../models/booking');
 let User = require('../models/user');
+let TimePreference = require('../models/preference');
 const paypal = require('paypal-rest-sdk');
 
 exports.bookings_get_all = (req, res) => {
@@ -78,7 +79,7 @@ exports.bookings_pay = (req, res) => {
             "payment_method": "paypal"
         },
         "redirect_urls": {
-            "return_url": `http://localhost:3000/bookings/success?timeslotStart=${req.body.timeslotStart}&timeslotEnd=${req.body.timeslotEnd}&participantNumber=${req.body.participantNumber}&tutor=${req.body.tutor}&subject=${req.body.subject}`,
+            "return_url": `http://localhost:3000/bookings/success?timeslotStart=${req.body.timeslotStart}&timeslotEnd=${req.body.timeslotEnd}&participantNumber=${req.body.participantNumber}&tutor=${req.body.tutor}&subject=${req.body.subject}&timePreferenceId=${req.body.timePreferenceId}&week=${req.body.week}`,
             "cancel_url": "http://localhost:3000/bookings/cancel"
         },
         "transactions": [{
@@ -133,15 +134,20 @@ exports.bookings_add_success = (req, res) => {
         } else {
             console.log(JSON.stringify(payment));
             const timeslotStart = req.query.timeslotStart;
-            const timeslotEnd =  req.query.timeslotEnd;
-            const participantNumber =  req.query.participantNumber;
+            const timeslotEnd = req.query.timeslotEnd;
+            const participantNumber = req.query.participantNumber;
             const user = req.userData.userId;
-            const tutor =  req.query.tutor;
-            const subject =  req.query.subject;
+            const tutor = req.query.tutor;
+            const subject = req.query.subject;
+            const timePreferenceId = req.query.timePreferenceId;
             const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, user, tutor, subject });
 
             newBooking.save()
-                .then((booking) => res.status(200).json(`Booking added successfully: ${booking}`))
+                .then((booking) => {
+                    TimePreference.updateOne({ tutor: tutor, _id: timePreferenceId }, { $addToSet: { bookedOnWeeks: req.query.week } }, { new: true })
+                        .then(() => res.status(200).json(`Booking added successfully and time preference busy status updated: ${booking}`))
+                        .catch(err => res.status(400).json('Error with updating user status: ' + err))
+                })
                 .catch(err => console.log(err));
         }
     });
