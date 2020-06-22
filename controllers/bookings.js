@@ -65,10 +65,19 @@ exports.bookings_get_all_current = (req, res) => {
 }
 
 exports.bookings_delete_one = (req, res) => {
+    console.log(req.body.week);
+    console.log(req.body.timePreferenceId);
     Booking.find({ user: req.userData.userId })
         .then(
-            Booking.findByIdAndDelete(req.params.id).where('timeslotStart').gt(new Date())
-                .then(() => res.json('Booking deleted.'))
+            Booking.findByIdAndDelete(req.params.id)
+                .then(() =>
+                    TimePreference.updateOne({ _id: req.body.timePreferenceId }, { $pull: { bookedOnWeeks: req.body.week } })
+                        .then(() => {
+                            console.log('perfect')
+                            res.json('Booking removed successfully and week value removed from bookedOnWeeks array')})
+                        .catch(err => {
+                            console.log('sth went wrong')
+                            res.status(400).json('Error: ' + err)}))
                 .catch(err => res.status(400).json('Error: ' + err)))
         .catch(err => res.status(400).json('Error: ' + err))
 }
@@ -110,7 +119,7 @@ exports.bookings_current_remove_invitation = (req, res) => {
     Invitation.findByIdAndDelete({ _id: req.params.invitationId })
         .then(
             Booking.updateOne({ _id: req.params.id }, { $inc: { participantNumber: -1 } })
-                .then(() => res.json('Invitaiton deleted and participant number of the booking decremented by 1.'))
+                .then(() => res.json('Invitation deleted and participant number of the booking decremented by 1.'))
                 .catch(err => res.status(400).json('Error: ' + err)))
         .catch(err => res.status(400).json('Error: ' + err))
 }
@@ -122,7 +131,7 @@ exports.bookings_pay = (req, res) => {
             "payment_method": "paypal"
         },
         "redirect_urls": {
-            "return_url": `http://localhost:3000/bookings/success?timeslotStart=${req.body.timeslotStart}&timeslotEnd=${req.body.timeslotEnd}&participantNumber=${req.body.participantNumber}&tutor=${req.body.tutor}&subject=${req.body.subject}&timePreferenceId=${req.body.timePreferenceId}&week=${req.body.week}`,
+            "return_url": `http://localhost:3000/bookings/success?timeslotStart=${req.body.timeslotStart}&timeslotEnd=${req.body.timeslotEnd}&participantNumber=${req.body.participantNumber}&tutor=${req.body.tutor}&price=${req.body.price}&subject=${req.body.subject}&timePreferenceId=${req.body.timePreferenceId}&week=${req.body.week}`,
             "cancel_url": "http://localhost:3000/bookings/cancel"
         },
         "transactions": [{
@@ -139,7 +148,7 @@ exports.bookings_pay = (req, res) => {
                 "currency": "EUR",
                 "total": req.body.price
             },
-            "description": `${req.body.timeslotStart} EUR for a tutorial with ${req.body.firstname} ${req.body.lastname}.`
+            "description": `${req.body.price} EUR for a tutorial with ${req.body.firstname} ${req.body.lastname}.`
         }]
     };
 
@@ -165,7 +174,7 @@ exports.bookings_add_success = (req, res) => {
         "transactions": [{
             "amount": {
                 "currency": "EUR",
-                "total": "30"
+                "total": req.query.price
             }
         }]
     };
@@ -183,7 +192,8 @@ exports.bookings_add_success = (req, res) => {
             const tutor = req.query.tutor;
             const subject = req.query.subject;
             const timePreferenceId = req.query.timePreferenceId;
-            const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, user, tutor, subject });
+            const week = req.query.week;
+            const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, week, timePreferenceId, user, tutor, subject });
 
             newBooking.save()
                 .then((booking) => {
