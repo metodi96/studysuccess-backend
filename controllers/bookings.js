@@ -76,17 +76,18 @@ exports.bookings_delete_one = (req, res) => {
 exports.bookings_current_invite = (req, res) => {
     const fromUser = req.userData.userId;
     const booking = req.body.bookingId;
-    User.findOne({ email: req.body.friendEmail })
+    const friendEmail = req.body.friendEmail;
+    User.findOne({ email: friendEmail })
         .then(user => {
             const newInvitation = new Invitation({ fromUser, toUser: user._id, booking })
             newInvitation
                 .save()
                 .then(() =>
-                    Booking.updateOne({ _id: booking }, { $inc: { 'participantNumber': 1 } }, { new: true })
-                        .then(res => {
-                            res.status(200).json('Invitation created and participant number of booking incremented by 1')
+                    Booking.updateOne({ _id: booking }, { $inc: { participantNumber: 1 } })
+                        .then(() => {
+                            res.json('Invitation created and participant number of booking incremented by 1');
                         })
-                        .catch(err => res.status(400).json('Error with incrementing participant number: ' + err))
+                        .catch(err => res.status(400).json('Error with incrementing participant number broski: ' + err))
                 )
                 .catch(err => {
                     console.log('Could not save invitation :(')
@@ -94,8 +95,8 @@ exports.bookings_current_invite = (req, res) => {
                 })
         })
         .catch(err => {
-            console.log('I dont know whats going on')
-            res.status(400).json('Error with finding user by email: ' + err)});
+            res.status(400).json('Error with finding user by email: ' + err)
+        });
 }
 
 exports.bookings_current_get_invitations = (req, res) => {
@@ -103,6 +104,15 @@ exports.bookings_current_get_invitations = (req, res) => {
         .populate('toUser')
         .then(invitations => res.json(invitations))
         .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.bookings_current_remove_invitation = (req, res) => {
+    Invitation.findByIdAndDelete({ _id: req.params.invitationId })
+        .then(
+            Booking.updateOne({ _id: req.params.id }, { $inc: { participantNumber: -1 } })
+                .then(() => res.json('Invitaiton deleted and participant number of the booking decremented by 1.'))
+                .catch(err => res.status(400).json('Error: ' + err)))
+        .catch(err => res.status(400).json('Error: ' + err))
 }
 
 exports.bookings_pay = (req, res) => {

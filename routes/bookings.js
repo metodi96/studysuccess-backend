@@ -22,6 +22,9 @@ router.post('/current/invite', checkAuth, BookingsController.bookings_current_in
 //get all invitations for the current booking of the logged in user
 router.get('/current/:id/invitations', checkAuth, BookingsController.bookings_current_get_invitations);
 
+//remove a concrete invitation of the logged in user for a specific booking
+router.delete('/current/:id/invitations/:invitationId', checkAuth, BookingsController.bookings_current_remove_invitation);
+
 //delete a specific current booking
 router.delete('/current/:id/cancel', checkAuth, BookingsController.bookings_delete_one);
 
