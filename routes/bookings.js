@@ -13,8 +13,17 @@ router.get('/success', checkAuth, BookingsController.bookings_add_success)
 //get past bookings of the logged in user
 router.get('/past', checkAuth, BookingsController.bookings_get_all_past);
 
+//get the pending bookings of the logged in user
+router.get('/pending', checkAuth, BookingsController.bookings_get_pending_invitations);
+
+//get the pending bookings of the logged in user
+router.post('/pending/:invitationId', checkAuth, BookingsController.bookings_accept_pending_invitation);
+
 //get the current bookings of the logged in user
 router.get('/current', checkAuth, BookingsController.bookings_get_all_current);
+
+//get the accepted invitations by the logged in user
+router.get('/current/accepted', checkAuth, BookingsController.bookings_get_accepted_invitations);
 
 //post invitation to another user using their email
 router.post('/current/invite', checkAuth, BookingsController.bookings_current_invite);

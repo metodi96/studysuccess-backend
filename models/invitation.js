@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 
 // define the subject schema
 const InvitationSchema = new mongoose.Schema({
-    fromUser: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
-    toUser: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
-    booking: {type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true}
+    fromUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    toUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    booking: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true },
+    accepted: { type: Boolean, default: false }
 }, {
     timestamps: true,
 });

@@ -72,10 +72,12 @@ exports.bookings_delete_one = (req, res) => {
                     TimePreference.updateOne({ _id: req.body.timePreferenceId }, { $pull: { bookedOnWeeks: req.body.week } })
                         .then(() => {
                             console.log('perfect')
-                            res.json('Booking removed successfully and week value removed from bookedOnWeeks array')})
+                            res.json('Booking removed successfully and week value removed from bookedOnWeeks array')
+                        })
                         .catch(err => {
                             console.log('sth went wrong')
-                            res.status(400).json('Error: ' + err)}))
+                            res.status(400).json('Error: ' + err)
+                        }))
                 .catch(err => res.status(400).json('Error: ' + err)))
         .catch(err => res.status(400).json('Error: ' + err))
 }
@@ -111,6 +113,38 @@ exports.bookings_current_get_invitations = (req, res) => {
         .populate('toUser')
         .then(invitations => res.json(invitations))
         .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.bookings_get_pending_invitations = (req, res) => {
+    Invitation.find({ toUser: req.userData.userId, accepted: false })
+        .populate({
+            path: 'booking',
+            populate: {
+                path: 'tutor'
+            }
+        })
+        .populate('fromUser')
+        .then(invitations => res.json(invitations))
+        .catch(err => res.status(400).json('Error: ' + err))
+}
+
+exports.bookings_get_accepted_invitations = (req, res) => {
+    Invitation.find({ toUser: req.userData.userId, accepted: true })
+        .populate({
+            path: 'booking',
+            populate: {
+                path: 'tutor'
+            }
+        })
+        .populate('fromUser')
+        .then(invitations => res.json(invitations))
+        .catch(err => res.status(400).json('Error: ' + err))
+}
+
+exports.bookings_accept_pending_invitation = (req, res) => {
+    Invitation.updateOne({ _id: req.params.invitationId, toUser: req.userData.userId }, { $set: { accepted: true } }, { new: true })
+        .then(invitation => res.json(`Invitation accepted: ${invitation}`))
+        .catch(err => res.status(400).json('Error: ' + err))
 }
 
 exports.bookings_current_remove_invitation = (req, res) => {
