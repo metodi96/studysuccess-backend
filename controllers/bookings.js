@@ -65,8 +65,6 @@ exports.bookings_get_all_current = (req, res) => {
 }
 
 exports.bookings_delete_one = (req, res) => {
-    console.log(req.body.week);
-    console.log(req.body.timePreferenceId);
     Booking.find({ user: req.userData.userId })
         .then(
             Booking.findByIdAndDelete(req.params.id)
