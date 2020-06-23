@@ -1,15 +1,22 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-
+const paypal = require('paypal-rest-sdk')
 //environment variables in dotenv file
 require('dotenv').config();
+
+paypal.configure({
+  'mode': 'sandbox', //sandbox or live
+  'client_id': process.env.PAYPAL_CLIENT_ID,
+  'client_secret': process.env.PAYPAL_CLIENT_SECRET
+});
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 //cors middleware
 app.use(cors());
+
 //this will allow us to parse json
 app.use(express.json());
 

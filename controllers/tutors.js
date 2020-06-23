@@ -8,6 +8,7 @@ exports.tutors_get_all = (req, res) => {
     })
         .populate('subjectsToTakeLessonsIn')
         .populate('subjectsToTeach')
+        .populate('timePreferences')
         .then(users => res.json(users))
         .catch(err => res.status(400).json('Error: ' + err));
 }
@@ -20,62 +21,71 @@ exports.tutors_get_one = (req, res) => {
     })
         .populate('subjectsToTakeLessonsIn')
         .populate('subjectsToTeach')
+        .populate('timePreferences')
         .then(user => res.json(user))
         .catch(err => res.status(400).json('Error: ' + err));
 }
 
-exports.tutors_add_time_prefs = (req, res) => {
-    const tutorId = req.params.tutorId;
-    User.findById(tutorId)    
-        .then(User.updateOne({ _id: tutorId},
-             { $addToSet: { timePreferences: { day: req.body.day, startTime: req.body.startTime, endTime: req.body.endTime} } },
-              { new: true })
-              .then(() => res.json("Tutor time preferences updated!"))
-              .catch(err => res.status(400).json('Error: ' + err)))
-                .catch(err => res.status(400).json('Error: ' + err));
-}
-
-exports.tutors_get_time_prefs = (req, res) => {
-    User.findById(req.params.tutorId)
-    .then(tutor => res.json(tutor.timePreferences))
-    .catch(err => res.status(400).json('Error: ' + err));
-}
-
 exports.tutors_get_for_subject = (req, res) => {
     User.find({
-    hasCertificateOfEnrolment: true,
-    hasGradeExcerpt: true
+        hasCertificateOfEnrolment: true,
+        hasGradeExcerpt: true
     })
-    .populate('subjectsToTakeLessonsIn')
-    .populate('subjectsToTeach')
-    .find({'subjectsToTeach' :  req.params.subjectId})
-    .then(tutor => res.json(tutor))
-    .catch(err => res.status(400).json('Error: ' + err))
+        .populate('subjectsToTakeLessonsIn')
+        .populate('subjectsToTeach')
+        .populate('timePreferences')
+        .find({ 'subjectsToTeach': req.params.subjectId })
+        .then(tutor => res.json(tutor))
+        .catch(err => res.status(400).json('Error: ' + err))
 }
 
 exports.tutors_get_one_for_subject = (req, res) => {
     User.find({
-    hasCertificateOfEnrolment: true,
-    hasGradeExcerpt: true
+        hasCertificateOfEnrolment: true,
+        hasGradeExcerpt: true
     })
-    .populate('subjectsToTakeLessonsIn')
-    .populate('subjectsToTeach')
-    .find({'subjectsToTeach' :  req.params.subjectId})
-    .findOne({_id: req.params.tutorId})
-    .then(tutor => res.json(tutor))
-    .catch(err => res.status(400).json('Error: ' + err))
+        .populate('subjectsToTakeLessonsIn')
+        .populate('subjectsToTeach')
+        .populate('timePreferences')
+        .find({ 'subjectsToTeach': req.params.subjectId })
+        .findOne({ _id: req.params.tutorId })
+        .then(tutor => res.json(tutor))
+        .catch(err => res.status(400).json('Error: ' + err))
 }
 
 exports.tutors_get_filtered = (req, res) => {
     User.find({
         hasCertificateOfEnrolment: true,
         hasGradeExcerpt: true
-        })
+    })
         .populate('subjectsToTakeLessonsIn')
         .populate('subjectsToTeach')
-        .find({'languages': req.body.language})
+        .populate('timePreferences')
+        .find({ 'languages': req.body.language })
         .where('pricePerHour').lte(req.body.pricePerHour)
         .then(tutor => res.json(tutor))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+let TimePreference = require('../models/preference');
+
+exports.timepreferences_get_all_of_tutor = (req, res) => {
+    TimePreference.find({tutor: req.params.tutorId})
+        .populate('tutor')
+        .then(timePreferences => res.json(timePreferences))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.timepreferences_add = (req, res) => {
+    const tutor = req.params.tutorId;
+    const day = req.body.day;
+    const startTime = req.body.startTime;
+    const endTime = req.body.endTime;
+
+    const newTimePreference = new TimePreference({ tutor, day, startTime, endTime });
+
+    newTimePreference.save()
+        .then(() => res.json('Time preference added!'))
         .catch(err => res.status(400).json('Error: ' + err));
 }
 

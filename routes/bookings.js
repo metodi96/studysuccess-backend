@@ -6,14 +6,24 @@ const BookingsController = require('../controllers/bookings');
 //get a list of all the bookings from the mongodb database of the logged in user
 router.get('/', checkAuth, BookingsController.bookings_get_all);
 
-//post a booking
-router.post('/add', checkAuth, BookingsController.bookings_add);
+router.post('/pay', checkAuth, BookingsController.bookings_pay);
+
+router.get('/success', checkAuth, BookingsController.bookings_add_success)
 
 //get past bookings of the logged in user
 router.get('/past', checkAuth, BookingsController.bookings_get_all_past);
 
 //get the current bookings of the logged in user
 router.get('/current', checkAuth, BookingsController.bookings_get_all_current);
+
+//post invitation to another user using their email
+router.post('/current/invite', checkAuth, BookingsController.bookings_current_invite);
+
+//get all invitations for the current booking of the logged in user
+router.get('/current/:id/invitations', checkAuth, BookingsController.bookings_current_get_invitations);
+
+//remove a concrete invitation of the logged in user for a specific booking
+router.delete('/current/:id/invitations/:invitationId', checkAuth, BookingsController.bookings_current_remove_invitation);
 
 //delete a specific current booking
 router.delete('/current/:id/cancel', checkAuth, BookingsController.bookings_delete_one);

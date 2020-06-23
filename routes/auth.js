@@ -38,5 +38,6 @@ router.post('/logout', AuthController.logout);
 router.get('/profile', checkAuth, AuthController.get_profile);
 //update a user, upload an image - fill in all the fields
 router.put('/profile/update', checkAuth, upload.single('userImage'), AuthController.update_profile);
+router.delete('/profile/:timePreferenceId', checkAuth, AuthController.timepreference_delete_one);
 
 module.exports = router;

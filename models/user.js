@@ -38,7 +38,7 @@ const UserSchema = new mongoose.Schema({
     },
     studyProgram: {
         type: String,
-        enum: ['Informatics', 'Information Systems', 'Data Engeneering and Analytics', 'Bioinformatics']        
+        enum: ['Informatics', 'Information Systems', 'Data Engeneering and Analytics', 'Bioinformatics']
     },
     degree: {
         type: String,
@@ -87,19 +87,6 @@ const UserSchema = new mongoose.Schema({
                 required: false
             }
         }], default: undefined
-    },
-    timePreferences: {
-        type: [{
-            day: Number,
-            startTime: {
-                hours: Number,
-                minutes: Number
-            },
-            endTime: {
-                hours: Number,
-                minutes: Number
-            }
-        }]
     },
     userImage: { type: String }
 }, {
