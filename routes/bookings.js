@@ -6,9 +6,15 @@ const BookingsController = require('../controllers/bookings');
 //get a list of all the bookings from the mongodb database of the logged in user
 router.get('/', checkAuth, BookingsController.bookings_get_all);
 
+router.post('/add', checkAuth, BookingsController.bookings_add_proposed_time)
+
 router.post('/pay', checkAuth, BookingsController.bookings_pay);
 
+router.post('/payAccepted', checkAuth, BookingsController.bookings_pay_accepted_proposed_time);
+
 router.get('/success', checkAuth, BookingsController.bookings_add_success)
+
+router.get('/successAccepted', checkAuth, BookingsController.bookings_pay_accepted_proposed_time_success)
 
 //get past bookings of the logged in user
 router.get('/past', checkAuth, BookingsController.bookings_get_all_past);
@@ -24,6 +30,9 @@ router.get('/current', checkAuth, BookingsController.bookings_get_all_current);
 
 //get the accepted invitations by the logged in user
 router.get('/current/accepted', checkAuth, BookingsController.bookings_get_accepted_invitations);
+
+//get the unaccepted invitations for the loggend in user
+router.get('/current/notAccepted', checkAuth, BookingsController.bookings_get_all_current_not_paid_for_user);
 
 //post invitation to another user using their email
 router.post('/current/invite', checkAuth, BookingsController.bookings_current_invite);
