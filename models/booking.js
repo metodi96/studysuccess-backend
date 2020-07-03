@@ -11,7 +11,9 @@ const BookingSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     tutor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     subject: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
-    feedbackGiven: { type: Boolean, default: false }
+    feedbackGiven: { type: Boolean, default: false },
+    acceptedByTutor: {type: Boolean, default: false},
+    paid: {type: Boolean, default: false}
 }, {
     timestamps: true,
 });

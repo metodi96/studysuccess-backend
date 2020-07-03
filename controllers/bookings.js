@@ -57,7 +57,7 @@ exports.bookings_add_feedback = (req, res) => {
 }
 
 exports.bookings_get_all_current = (req, res) => {
-    Booking.find({ user: req.userData.userId }).where('timeslotStart').gt(new Date())
+    Booking.find({ user: req.userData.userId, acceptedByTutor: true, paid: true }).where('timeslotStart').gt(new Date())
         .populate('tutor')
         .populate('subject')
         .then(booking => res.json(booking))
@@ -71,7 +71,6 @@ exports.bookings_delete_one = (req, res) => {
                 .then(() =>
                     TimePreference.updateOne({ _id: req.body.timePreferenceId }, { $pull: { bookedOnWeeks: req.body.week } })
                         .then(() => {
-                            console.log('perfect')
                             res.json('Booking removed successfully and week value removed from bookedOnWeeks array')
                         })
                         .catch(err => {
@@ -225,7 +224,9 @@ exports.bookings_add_success = (req, res) => {
             const subject = req.query.subject;
             const timePreferenceId = req.query.timePreferenceId;
             const week = req.query.week;
-            const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, week, timePreferenceId, user, tutor, subject });
+            const paid = true;
+            const acceptedByTutor = true;
+            const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, week, timePreferenceId, user, tutor, subject, acceptedByTutor, paid });
 
             newBooking.save()
                 .then((booking) => {
@@ -237,6 +238,125 @@ exports.bookings_add_success = (req, res) => {
         }
     });
 }
+
+exports.bookings_add_proposed_time = (req, res) => {
+    const timeslotStart = req.body.timeslotStart;
+    const timeslotEnd = req.body.timeslotEnd;
+    const participantNumber = req.body.participantNumber;
+    const user = req.userData.userId;
+    const tutor = req.body.tutor;
+    const subject = req.body.subject;
+    const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, user, tutor, subject });
+
+    newBooking.save()
+        .then(() => res.status(200).json(`Booking added to the view of the tutor (not paid and not accepted)`))
+        .catch(err => console.log(err));
+}
+
+exports.bookings_get_all_current_not_accepted_and_not_paid_for_tutor = (req, res) => {
+    Booking.find({ tutor: req.userData.userId, acceptedByTutor: false, paid: false }).where('timeslotStart').gt(new Date())
+        .populate('tutor')
+        .populate('user')
+        .populate('subject')
+        .then(booking => res.json(booking))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.bookings_get_all_current_not_paid_for_user = (req, res) => {
+    Booking.find({ user: req.userData.userId, paid: false }).where('timeslotStart').gt(new Date())
+        .populate('tutor')
+        .populate('user')
+        .populate('subject')
+        .then(booking => res.json(booking))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.bookings_accept_proposed_time = (req, res) => {
+    Booking.updateOne({ _id: req.params.id, tutor: req.userData.userId }, { $set: { acceptedByTutor: true } })
+        .then(booking => res.json(`Proposed time accepted by tutor. Booking is: ${booking}`))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.bookings_pay_accepted_proposed_time = (req, res) => {
+    const create_payment_json = {
+        "intent": "sale",
+        "payer": {
+            "payment_method": "paypal"
+        },
+        "redirect_urls": {
+            "return_url": `http://localhost:3000/bookings/successAccepted?timeslotStart=${req.body.timeslotStart}&timeslotEnd=${req.body.timeslotEnd}&participantNumber=${req.body.participantNumber}&tutor=${req.body.tutor}&price=${req.body.price}&subject=${req.body.subject}&bookingId=${req.body.bookingId}`,
+            "cancel_url": "http://localhost:3000/bookings/cancel"
+        },
+        "transactions": [{
+            "item_list": {
+                "items": [{
+                    "name": req.body.firstname,
+                    "sku": "001",
+                    "price": req.body.price,
+                    "currency": "EUR",
+                    "quantity": 1,
+                }]
+            },
+            "amount": {
+                "currency": "EUR",
+                "total": req.body.price
+            },
+            "description": `${req.body.price} EUR for a tutorial with ${req.body.firstname} ${req.body.lastname}.`
+        }]
+    };
+
+    paypal.payment.create(create_payment_json, function (error, payment) {
+        if (error) {
+            throw error;
+        } else {
+            payment.links.forEach(paymentLink => {
+                if (paymentLink.rel === 'approval_url') {
+                    res.json({ forwardLink: `${paymentLink.href}` });
+                }
+            });
+        }
+    });
+}
+
+exports.bookings_pay_accepted_proposed_time_success = (req, res) => {
+
+    const payerId = req.query.PayerID;
+    const paymentId = req.query.paymentId;
+
+    const execute_payment_json = {
+        "payer_id": payerId,
+        "transactions": [{
+            "amount": {
+                "currency": "EUR",
+                "total": req.query.price
+            }
+        }]
+    };
+
+    paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+        if (error) {
+            console.log(error.response);
+            throw error;
+        } else {
+            console.log(JSON.stringify(payment));
+
+
+            Booking.updateOne({ _id: req.query.bookingId, user: req.userData.userId }, { $set: { acceptedByTutor: true, paid: true } })
+                .then(booking => res.json(`Booking with proposed time is paid: ${booking}`))
+                .catch(err => res.status(400).json('Error: ' + err));
+        }
+    })
+}
+
+/*
+exports.bookings_get_all_current_not_accepted_for_tutor = (req, res) => {
+    Booking.find({ user: req.userData.userId, acceptedByTutor: true, paid: false }).where('timeslotStart').gt(new Date())
+        .populate('tutor')
+        .populate('subject')
+        .then(booking => res.json(booking))
+        .catch(err => res.status(400).json('Error: ' + err));
+}*/
+
 
 exports.bookings_add_cancel = (req, res) => {
     res.status(200).json('Transaction cancelled.')
@@ -252,19 +372,3 @@ exports.bookings_get_one = (req, res) => {
                 .catch(err => res.status(400).json('Error: ' + err)))
         .catch(err => res.status(400).json('Error: ' + err));
 }
-
-/* to be updated
-exports.bookings_update_one = (req, res) => {
-    Booking.findById(req.params.id)
-      .then(booking => {
-        booking.timeslotStart = req.body.timeslotStart;
-        booking.timeslotEnd = req.body.timeslotEnd;
-        booking.participantNumber = req.body.participantNumber;
-
-        booking.save()
-          .then(() => res.json('Booking updated!'))
-          .catch(err => res.status(400).json('Error: ' + err));
-      })
-      .catch(err => res.status(400).json('Error: ' + err));
-  }
-  */
