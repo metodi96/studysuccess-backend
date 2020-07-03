@@ -133,7 +133,8 @@ exports.bookings_get_accepted_invitations = (req, res) => {
             path: 'booking',
             populate: {
                 path: 'tutor'
-            }
+            },
+            match: { timeslotStart: { $gt: new Date() }}
         })
         .populate('fromUser')
         .then(invitations => res.json(invitations))
