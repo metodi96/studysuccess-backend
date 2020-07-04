@@ -141,6 +141,7 @@ exports.bookings_get_accepted_invitations = (req, res) => {
         .catch(err => res.status(400).json('Error: ' + err))
 }
 
+//isnt yet included in routes
 exports.bookings_accept_pending_invitation = (req, res) => {
     Invitation.updateOne({ _id: req.params.invitationId, toUser: req.userData.userId }, { $set: { accepted: true } }, { new: true })
         .then(invitation => res.json(`Invitation accepted: ${invitation}`))
@@ -254,6 +255,7 @@ exports.bookings_add_proposed_time = (req, res) => {
         .catch(err => console.log(err));
 }
 
+//isn't yet included in routes
 exports.bookings_get_all_current_not_accepted_and_not_paid_for_tutor = (req, res) => {
     Booking.find({ tutor: req.userData.userId, acceptedByTutor: false, paid: false }).where('timeslotStart').gt(new Date())
         .populate('tutor')
@@ -348,16 +350,6 @@ exports.bookings_pay_accepted_proposed_time_success = (req, res) => {
         }
     })
 }
-
-/*
-exports.bookings_get_all_current_not_accepted_for_tutor = (req, res) => {
-    Booking.find({ user: req.userData.userId, acceptedByTutor: true, paid: false }).where('timeslotStart').gt(new Date())
-        .populate('tutor')
-        .populate('subject')
-        .then(booking => res.json(booking))
-        .catch(err => res.status(400).json('Error: ' + err));
-}*/
-
 
 exports.bookings_add_cancel = (req, res) => {
     res.status(200).json('Transaction cancelled.')
