@@ -33,7 +33,7 @@ exports.bookings_get_one_past = (req, res) => {
 
 exports.bookings_add_feedback = (req, res) => {
     const booking = req.params.id;
-    const tutor = req.body.tutor;
+    const tutorId = req.body.tutorId;
     //first find all the bookings of the logged in user
     Booking.find({ user: req.userData.userId })
         .then(
@@ -45,7 +45,7 @@ exports.bookings_add_feedback = (req, res) => {
                         .where('timeslotStart')
                         .lt(new Date())
                         .then(
-                            User.updateOne({ _id: tutor }, { $addToSet: { feedback: { rating: req.body.rating, comment: req.body.comment } } }, { new: true })
+                            User.updateOne({ _id: tutorId }, { $addToSet: { feedback: { rating: req.body.rating, comment: req.body.comment } } }, { new: true })
                                 .then(() => res.json("User and booking updated with feedback")))
                         .catch(err => res.status(400).json('Error: ' + err));
                 } else {
