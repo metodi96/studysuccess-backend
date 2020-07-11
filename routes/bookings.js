@@ -22,7 +22,7 @@ router.get('/past', checkAuth, BookingsController.bookings_get_all_past);
 //get the pending bookings of the logged in user
 router.get('/pending', checkAuth, BookingsController.bookings_get_pending_invitations);
 
-//get the pending bookings of the logged in user
+//accept pending invitation
 router.post('/pending/:invitationId', checkAuth, BookingsController.bookings_accept_pending_invitation);
 
 //get the current bookings of the logged in user
