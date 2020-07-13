@@ -11,5 +11,6 @@ router.get('/:subjectId', TutorsController.tutors_get_for_subject);
 router.get('/:subjectId/:tutorId', TutorsController.tutors_get_one_for_subject);
 router.get('/:subjectId/filtered', checkAuth, TutorsController.tutors_get_filtered);
 router.get('/:subjectId/filtered/:tutorId', checkAuth, TutorsController.tutors_get_one);
+router.post('/addToFavourites', TutorsController.favourite_add);
 
 module.exports = router;

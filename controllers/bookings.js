@@ -45,7 +45,7 @@ exports.bookings_add_feedback = (req, res) => {
                         .where('timeslotStart')
                         .lt(new Date())
                         .then(
-                            User.updateOne({ _id: tutorId }, { $addToSet: { feedback: { rating: req.body.rating, comment: req.body.comment } } }, { new: true })
+                            User.updateOne({ _id: tutorId }, { $addToSet: { feedback: { rating: req.body.rating, comment: req.body.comment, forSubject: req.body.forSubject } } }, { new: true })
                                 .then(() => res.json("User and booking updated with feedback")))
                         .catch(err => res.status(400).json('Error: ' + err));
                 } else {

@@ -75,6 +75,9 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: undefined
     },
+
+    favouriteTutors: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], default: undefined},
+    
     languages: { type: [String], default: undefined },
     subjectsToTeach: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subject' }], default: undefined },
     feedback: {
@@ -87,7 +90,8 @@ const UserSchema = new mongoose.Schema({
                 type: String,
                 default: "",
                 required: false
-            }
+            },
+            forSubject: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject' }
         }], default: undefined
     },
     userImage: { type: String }
