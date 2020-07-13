@@ -119,3 +119,9 @@ exports.timepreference_delete_one = (req, res) => {
         .then(() => res.json('Time preference deleted.'))
         .catch(err => res.status(400).json('Error: ' + err));
 }
+
+exports.favourite_add = (req, res) => {
+    User.updateOne({ _id: req.userData.userId }, { $addToSet: { favouriteTutors: req.body.tutorId } }, { new: true })
+        .then(() => res.json("The tutor was added"))
+        .catch(err => res.status(400).json('Error: ' + err));
+}

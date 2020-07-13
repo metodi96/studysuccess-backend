@@ -71,7 +71,12 @@ exports.bookings_delete_one = (req, res) => {
                 .then(() =>
                     TimePreference.updateOne({ _id: req.body.timePreferenceId }, { $pull: { bookedOnWeeks: req.body.week } })
                         .then(() => {
-                            res.json('Booking removed successfully and week value removed from bookedOnWeeks array')
+                            Invitation.deleteOne({booking: req.params.id})
+                                .then(() => res.json('Booking removed successfully and week value removed from bookedOnWeeks array and invitation deleted'))
+                                .catch(err => {
+                                    console.log('Something went wrong with deleting the invitation')
+                                    res.status(400).json('Error: ' + err)
+                                })
                         })
                         .catch(err => {
                             console.log('sth went wrong')

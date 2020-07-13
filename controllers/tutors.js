@@ -143,10 +143,3 @@ exports.timepreferences_add = (req, res) => {
 }
 
 
-exports.favourite_add = (req, res) => {
-    User.updateOne({ _id: req.userData.userId }, { $addToSet:  {favouriteTutors: req.body.tutorId} }, { new: true })
-        .then(() => res.json("The tutor was added"))
-        .catch(err => res.status(400).json('Error: ' + err));
-}
-
-

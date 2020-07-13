@@ -48,7 +48,7 @@ const UserSchema = new mongoose.Schema({
     avgRating: {
         type: Number,
         default: function () {
-            if (this.hasCertificateOfEnrolment && this.hasGradeExcerpt && this.feedback != undefined) {
+            if (this.hasCertificateOfEnrolment && this.hasGradeExcerpt && this.feedback !== undefined) {
                 var totalRating = 0;
                 for (const { rating } of this.feedback) {
                     totalRating += rating;
