@@ -2,15 +2,18 @@ let User = require('../models/user');
 
 exports.tutors_get_all = (req, res) => {
     //get a list of all the tutors from the mongodb database 
+    console.log("all tutors")
     User.find({
         hasCertificateOfEnrolment: true,
         hasGradeExcerpt: true
     })
-        .populate('subjectsToTakeLessonsIn')
-        .populate('subjectsToTeach')
+        .populate({
+            path: 'subjectstoteach',
+            populate: {path : 'subjectstoteach'}
+            })
         .populate('timePreferences')
-        .then(users => res.json(users))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .then(users => {console.log(users);res.json(users)} )
+        .catch(err => {console.log(err);(res.status(400).json('Error: ' + err))});
 }
 
 exports.tutors_get_one = (req, res) => {
@@ -46,6 +49,7 @@ exports.tutors_get_one_for_subject = (req, res) => {
     })
         .populate('subjectsToTakeLessonsIn')
         .populate('subjectsToTeach')
+        .populate('feedback.forSubject')
         .populate('timePreferences')
         .find({ 'subjectsToTeach': req.params.subjectId })
         .findOne({ _id: req.params.tutorId })
@@ -86,6 +90,13 @@ exports.timepreferences_add = (req, res) => {
 
     newTimePreference.save()
         .then(() => res.json('Time preference added!'))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+
+exports.favourite_add = (req, res) => {
+    User.updateOne({ _id: req.userData.userId }, { $addToSet:  {favouriteTutors: req.body.tutorId} }, { new: true })
+        .then(() => res.json("The tutor was added"))
         .catch(err => res.status(400).json('Error: ' + err));
 }
 
