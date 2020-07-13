@@ -38,7 +38,7 @@ const UserSchema = new mongoose.Schema({
     },
     studyProgram: {
         type: String,
-        enum: ['Informatics', 'Information Systems', 'Data Engeneering and Analytics', 'Bioinformatics']
+        enum: ['Informatics', 'Information Systems', 'Data Engineering and Analytics', 'Bioinformatics']
     },
     degree: {
         type: String,
@@ -60,10 +60,12 @@ const UserSchema = new mongoose.Schema({
         }
     },
     hasCertificateOfEnrolment: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     hasGradeExcerpt: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     pricePerHour: {
         type: Number,

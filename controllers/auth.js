@@ -22,7 +22,7 @@ exports.update_profile = (req, res) => {
             user.subjectsToTakeLessonsIn = req.body.subjectsToTakeLessonsIn;
             user.hasCertificateOfEnrolment = req.body.hasCertificateOfEnrolment;
             user.hasGradeExcerpt = req.body.hasGradeExcerpt;
-            if (req.file != undefined) {
+            if (req.file !== undefined) {
                 user.userImage = req.file.path;
             }
 
