@@ -1,4 +1,5 @@
 let User = require('../models/user');
+let TimePreference = require('../models/preference');
 
 exports.tutors_get_all = (req, res) => {
     //get a list of all the tutors from the mongodb database 
@@ -38,7 +39,10 @@ exports.tutors_get_for_subject = (req, res) => {
         .populate('subjectsToTeach')
         .populate('timePreferences')
         .find({ 'subjectsToTeach': req.params.subjectId })
-        .then(tutor => res.json(tutor))
+        .then(tutor => {
+            console.log(tutor);
+            res.json(tutor);
+        })
         .catch(err => res.status(400).json('Error: ' + err))
 }
 
@@ -58,24 +62,69 @@ exports.tutors_get_one_for_subject = (req, res) => {
 }
 
 exports.tutors_get_filtered = (req, res) => {
-    User.find({
-        hasCertificateOfEnrolment: true,
-        hasGradeExcerpt: true
-    })
-        .populate('subjectsToTakeLessonsIn')
-        .populate('subjectsToTeach')
-        .populate('timePreferences')
-        .find({ 'languages': req.body.language })
-        .where('pricePerHour').lte(req.body.pricePerHour)
-        .then(tutor => res.json(tutor))
-        .catch(err => res.status(400).json('Error: ' + err));
+    if(Object.keys(req.body).length > 0) {
+        console.log(req.body);
+        var promise = User.find({
+                hasCertificateOfEnrolment: true,
+                hasGradeExcerpt: true
+            })
+            .populate('subjectsToTakeLessonsIn')
+            .populate('subjectsToTeach')
+            .find({ 'subjectsToTeach': req.params.subjectId})
+            .where('pricePerHour').lte(req.body.pricePerHour);
+        if(req.body.language) {
+            promise = promise.find({'languages': req.body.language});
+        }
+        if(req.body.dayTime) {
+            if(req.body.dayTime ==  1) {
+                TimePreference.find({ 'startTime.hours' : { "$in" : ['07','08','09','7', '8','9','10','11','12','13']}})
+                    .then(timePrefList => timePrefList.map(item => item.tutor ))
+                    .catch(err => res.status(400).json('Error: ' + err))
+                    .then(newList => promise = promise.find( { '_id': {"$in" : newList} } ))
+                    .catch(err => res.status(400).json('Error: ' + err));
+            }
+            else if(req.body.dayTime == 2) {
+                TimePreference.find({ 'startTime.hours' : { "$in" : ['14', '15','16','17','18','19']}})
+                    .then(timePrefList => timePrefList.map(item => item.tutor ))
+                    .catch(err => res.status(400).json('Error: ' + err))
+                    .then(newList => promise = promise.find( { '_id': {"$in" : newList} } ))
+                    .catch(err => res.status(400).json('Error: ' + err));
+            }
+            else if(req.body.dayTime == 3) {
+                TimePreference.find({ 'startTime.hours' : { "$in" : ['14', '15','16','17','18','19']}})
+                    .then(timePrefList => timePrefList.map(item => item.tutor ))
+                    .catch(err => res.status(400).json('Error: ' + err))
+                    .then(newList => promise = promise.find( { '_id': {"$in" : newList} } ))
+                    .catch(err => res.status(400).json('Error: ' + err));
+            }
+            else if(req.body.dayTime == 4) {
+                TimePreference.where('day').gte(6)
+                    .then(timePrefList => timePrefList.map(item => item.tutor))
+                    .catch(err => res.status(400).json('Error: ' + err))
+                    .then(newList => promise = promise.find( { '_id': {"$in" : newList} } ))
+                    .catch(err => res.status(400).json('Error: ' + err));
+            }
+        }
+        promise.then(tutor => res.json(tutor))
+            .catch(err => res.status(400).json('Error: ' + err));
+    }
+    else {
+        User.find({
+            hasCertificateOfEnrolment: true,
+            hasGradeExcerpt: true
+        })
+            .populate('subjectsToTakeLessonsIn')
+            .populate('subjectsToTeach')
+            .populate('timePreferences')
+            .find({ 'subjectsToTeach': req.params.subjectId })
+            .then(tutor => res.json(tutor))
+            .catch(err => res.status(400).json('Error: ' + err))
+    }   
 }
-
-let TimePreference = require('../models/preference');
 
 exports.timepreferences_get_all_of_tutor = (req, res) => {
     TimePreference.find({tutor: req.params.tutorId})
-        .populate('tutor')
+        //.populate('tutor')
         .then(timePreferences => res.json(timePreferences))
         .catch(err => res.status(400).json('Error: ' + err));
 }
