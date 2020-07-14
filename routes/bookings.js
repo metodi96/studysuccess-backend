@@ -10,6 +10,9 @@ router.post('/add', checkAuth, BookingsController.bookings_add_proposed_time)
 
 router.post('/pay', checkAuth, BookingsController.bookings_pay);
 
+//backup plan in case paying doesn't work somehow
+router.post('/payBackup', checkAuth, BookingsController.bookings_add_without_payment);
+
 router.post('/payAccepted', checkAuth, BookingsController.bookings_pay_accepted_proposed_time);
 
 router.get('/success', checkAuth, BookingsController.bookings_add_success)
@@ -21,6 +24,12 @@ router.get('/past', checkAuth, BookingsController.bookings_get_all_past);
 
 //get the pending bookings of the logged in user
 router.get('/pending', checkAuth, BookingsController.bookings_get_pending_invitations);
+
+//get the pending bookings of the logged in user as the role of tutor
+router.get('/pendingTutor', checkAuth, BookingsController.bookings_get_all_current_not_accepted_and_not_paid_for_tutor);
+
+//accept the proposed time by another user (loggen in user is tutor)
+router.put('/acceptProposedTime/:id', checkAuth, BookingsController.bookings_accept_proposed_time);
 
 //accept pending invitation
 router.post('/pending/:invitationId', checkAuth, BookingsController.bookings_accept_pending_invitation);

@@ -260,6 +260,28 @@ exports.bookings_add_proposed_time = (req, res) => {
         .catch(err => console.log(err));
 }
 
+exports.bookings_add_without_payment = (req, res) => {
+    const timeslotStart = req.body.timeslotStart;
+    const timeslotEnd = req.body.timeslotEnd;
+    const participantNumber = req.body.participantNumber;
+    const user = req.userData.userId;
+    const tutor = req.body.tutor;
+    const subject = req.body.subject;
+    const week = req.body.week;
+    const timePreferenceId = req.body.timePreferenceId;
+    const acceptedByTutor = true;
+    const paid = true;
+    const newBooking = new Booking({ timeslotStart, timeslotEnd, participantNumber, user, tutor, subject, acceptedByTutor, paid, week, timePreferenceId });
+
+    newBooking.save()
+        .then(((booking) => {
+            TimePreference.updateOne({ tutor: tutor, _id: timePreferenceId }, { $addToSet: { bookedOnWeeks: req.body.week } }, { new: true })
+                .then(() => res.status(200).json(`Booking added to the view of the tutor without paypal api (paid and accepted) ${booking}`))
+                .catch(err => res.status(400).json('Error with updating user status: ' + err))
+        })) 
+        .catch(err => console.log(err));
+}
+
 //isn't yet included in routes
 exports.bookings_get_all_current_not_accepted_and_not_paid_for_tutor = (req, res) => {
     Booking.find({ tutor: req.userData.userId, acceptedByTutor: false, paid: false }).where('timeslotStart').gt(new Date())
