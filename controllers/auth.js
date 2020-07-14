@@ -122,6 +122,12 @@ exports.timepreference_delete_one = (req, res) => {
 
 exports.favourite_add = (req, res) => {
     User.updateOne({ _id: req.userData.userId }, { $addToSet: { favouriteTutors: req.body.tutorId } }, { new: true })
-        .then(() => res.json("The tutor was added"))
+        .then(() => res.json("The tutor was added to favourites"))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.favourite_remove = (req, res) => {
+    User.updateOne({ _id: req.userData.userId }, { $pull: { favouriteTutors: req.body.tutorId } }, { new: true })
+        .then(() => res.json("The tutor was removed from favourites"))
         .catch(err => res.status(400).json('Error: ' + err));
 }

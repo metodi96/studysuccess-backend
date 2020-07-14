@@ -8,10 +8,7 @@ exports.tutors_get_all = (req, res) => {
         hasCertificateOfEnrolment: true,
         hasGradeExcerpt: true
     })
-        .populate({
-            path: 'subjectstoteach',
-            populate: {path : 'subjectstoteach'}
-            })
+        .populate('subjectsToTeach')
         .populate('timePreferences')
         .then(users => {console.log(users);res.json(users)} )
         .catch(err => {console.log(err);(res.status(400).json('Error: ' + err))});
