@@ -19,7 +19,6 @@ exports.update_profile = (req, res) => {
             user.university = req.body.university;
             user.studyProgram = req.body.studyProgram;
             user.degree = req.body.degree;
-            user.subjectsToTakeLessonsIn = req.body.subjectsToTakeLessonsIn;
             if (!user.hasCertificateOfEnrolment) {
                 user.hasCertificateOfEnrolment = req.body.hasCertificateOfEnrolment;
             }
@@ -31,13 +30,14 @@ exports.update_profile = (req, res) => {
             }
 
             //check if user is tutor and then update the other fields
-            if (user.hasCertificateOfEnrolment && user.hasGradeExcerpt) {
+            //should be moved to another function i think
+           /* if (user.hasCertificateOfEnrolment && user.hasGradeExcerpt) {
                 user.pricePerHour = req.body.pricePerHour;
                 user.personalStatement = req.body.personalStatement;
                 user.languages = req.body.languages;
                 user.subjectsToTeach = req.body.subjectsToTeach;
                 user.timePreferences = req.body.timePreferences;
-            }
+            }*/
 
             user.save()
                 .then(() => user.hasCertificateOfEnrolment && user.hasGradeExcerpt ? res.json('User updated to tutor!') : res.json('User updated!'))
