@@ -20,8 +20,12 @@ exports.update_profile = (req, res) => {
             user.studyProgram = req.body.studyProgram;
             user.degree = req.body.degree;
             user.subjectsToTakeLessonsIn = req.body.subjectsToTakeLessonsIn;
-            user.hasCertificateOfEnrolment = req.body.hasCertificateOfEnrolment;
-            user.hasGradeExcerpt = req.body.hasGradeExcerpt;
+            if (!user.hasCertificateOfEnrolment) {
+                user.hasCertificateOfEnrolment = req.body.hasCertificateOfEnrolment;
+            }
+            if (!user.hasGradeExcerpt) {
+                user.hasGradeExcerpt = req.body.hasGradeExcerpt;
+            }
             if (req.file !== undefined) {
                 user.userImage = req.file.path;
             }
