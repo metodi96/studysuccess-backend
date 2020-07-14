@@ -135,3 +135,15 @@ exports.favourite_remove = (req, res) => {
         .then(() => res.json("The tutor was removed from favourites"))
         .catch(err => res.status(400).json('Error: ' + err));
 }
+
+exports.add_subject_to_take_lessons_in = (req, res) => {
+    User.updateOne({ _id: req.userData.userId }, { $addToSet: { subjectsToTakeLessonsIn: req.body.subjectId } }, { new: true })
+        .then(() => res.json("The subject was added successfully."))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.remove_subject_to_take_lessons_in = (req, res) => {
+    User.updateOne({ _id: req.userData.userId }, { $pull: { subjectsToTakeLessonsIn: req.body.subjectId } }, { new: true })
+        .then(() => res.json("The subject was removed successfully."))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
