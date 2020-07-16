@@ -282,7 +282,6 @@ exports.bookings_add_without_payment = (req, res) => {
         .catch(err => console.log(err));
 }
 
-//isn't yet included in routes
 exports.bookings_get_all_current_not_accepted_and_not_paid_for_tutor = (req, res) => {
     Booking.find({ tutor: req.userData.userId, acceptedByTutor: false, paid: false }).where('timeslotStart').gt(new Date())
         .populate('tutor')

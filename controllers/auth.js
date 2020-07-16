@@ -5,6 +5,12 @@ const bcrypt = require('bcrypt');
 exports.get_profile = (req, res) => {
     User.findById(req.userData.userId)
         .populate('subjectsToTakeLessonsIn')
+        .populate({
+            path: 'favouriteTutors',
+            populate: {
+                path: 'subjectsToTeach'
+            }
+        })
         .then(user => res.json(user))
         .catch(err => res.status(400).json('Error: ' + err));
 }
