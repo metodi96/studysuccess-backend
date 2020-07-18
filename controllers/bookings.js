@@ -189,11 +189,12 @@ exports.bookings_pay = (req, res) => {
             "description": `${req.body.price} EUR for a tutorial with ${req.body.firstname} ${req.body.lastname}.`
         }]
     };
-
+    //we're passing the json object and we then receive this payment object
     paypal.payment.create(create_payment_json, function (error, payment) {
         if (error) {
             throw error;
         } else {
+            //we iterate through the array of links and when we find the approval link we send the user to it to pay
             payment.links.forEach(paymentLink => {
                 if (paymentLink.rel === 'approval_url') {
                     res.json({ forwardLink: `${paymentLink.href}` });
@@ -204,6 +205,7 @@ exports.bookings_pay = (req, res) => {
 }
 
 exports.bookings_add_success = (req, res) => {
+    //these are automatically appended to the /success path
     const payerId = req.query.PayerID;
     const paymentId = req.query.paymentId;
 
@@ -216,7 +218,7 @@ exports.bookings_add_success = (req, res) => {
             }
         }]
     };
-
+    //payment is executed and the payment object is returned
     paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
         if (error) {
             console.log(error.response);
@@ -237,6 +239,7 @@ exports.bookings_add_success = (req, res) => {
 
             newBooking.save()
                 .then((booking) => {
+                    //we update a time preference by adding the concrete week to the bookedOnWeeks array so that the same time slot doesn't get booked by another student
                     TimePreference.updateOne({ tutor: tutor, _id: timePreferenceId }, { $addToSet: { bookedOnWeeks: req.query.week } }, { new: true })
                         .then(() => res.status(200).json(`Booking added successfully and time preference busy status updated: ${booking}`))
                         .catch(err => res.status(400).json('Error with updating user status: ' + err))
