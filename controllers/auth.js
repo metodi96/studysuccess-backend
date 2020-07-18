@@ -1,4 +1,5 @@
 let User = require('../models/user');
+let TimePreference = require('../models/preference');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -40,7 +41,6 @@ exports.update_profile = (req, res) => {
                 user.pricePerHour = req.body.pricePerHour;
                 user.personalStatement = req.body.personalStatement;
                 user.languages = req.body.languages;
-                //user.timePreferences = req.body.timePreferences;
             }
 
             user.save()
@@ -121,6 +121,25 @@ exports.login = (req, res) => {
 exports.logout = (req, res) => {
     res.status(200).send({ token: null });
 };
+
+exports.timepreference_add = (req, res) => {
+    const tutor = req.userData.userId;
+    const day = req.body.day;
+    const startTime = req.body.startTime;
+    const endTime = req.body.endTime;
+
+    const newTimeslot = new TimePreference({ tutor, day, startTime, endTime });
+
+    newTimeslot.save()
+        .then(() => res.status(201).json('Timeslot added!'))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.timepreference_get = (req, res) => {
+    TimePreference.find({tutor: req.userData.userId})
+        .then(timePreferences => res.json(timePreferences))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
 
 exports.timepreference_delete_one = (req, res) => {
     TimePreference.findByIdAndDelete(req.params.timePreferenceId)

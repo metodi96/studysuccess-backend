@@ -44,6 +44,8 @@ router.put('/profile/addSubjectToTakeLessonsIn', checkAuth, AuthController.add_s
 router.put('/profile/removeSubjectToTakeLessonsIn', checkAuth, AuthController.remove_subject_to_take_lessons_in);
 router.put('/profile/addSubjectToTeach', checkAuth, AuthController.add_subject_to_teach);
 router.put('/profile/removeSubjectToTeach', checkAuth, AuthController.remove_subject_to_teach);
+router.get('/profile/timeslots', checkAuth, AuthController.timepreference_get);
+router.post('/profile/addTimeslot', checkAuth, AuthController.timepreference_add);
 router.delete('/profile/:timePreferenceId', checkAuth, AuthController.timepreference_delete_one);
 
 module.exports = router;
