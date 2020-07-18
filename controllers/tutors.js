@@ -59,9 +59,9 @@ exports.tutors_get_one_for_subject = (req, res) => {
 }
 
 exports.tutors_get_filtered = (req, res) => {
-    if(Object.keys(req.body).length > 0) {
+    if(Object.keys(req.body).length > 0) { // if filters have some criteria set
         console.log(req.body);
-        var promise = User.find({
+        var promise = User.find({ // create promise variable which is epxanded according to number of filtering options set
                 hasCertificateOfEnrolment: true,
                 hasGradeExcerpt: true
             })
@@ -69,10 +69,10 @@ exports.tutors_get_filtered = (req, res) => {
             .populate('subjectsToTeach')
             .find({ 'subjectsToTeach': req.params.subjectId})
             .where('pricePerHour').lte(req.body.pricePerHour);
-        if(req.body.language) {
+        if(req.body.language) { // if language filtering is set
             promise = promise.find({'languages': req.body.language});
         }
-        if(req.body.dayTime) {
+        if(req.body.dayTime) { // if time availability filtering is set
             if(req.body.dayTime ==  1) {
                 TimePreference.find({ 'startTime.hours' : { "$in" : ['07','08','09','7', '8','9','10','11','12','13']}})
                     .then(timePrefList => timePrefList.map(item => item.tutor ))
@@ -105,7 +105,7 @@ exports.tutors_get_filtered = (req, res) => {
         promise.then(tutor => res.json(tutor))
             .catch(err => res.status(400).json('Error: ' + err));
     }
-    else {
+    else { // otherwise, use request for all tutors for the given subject
         User.find({
             hasCertificateOfEnrolment: true,
             hasGradeExcerpt: true
@@ -121,7 +121,6 @@ exports.tutors_get_filtered = (req, res) => {
 
 exports.timepreferences_get_all_of_tutor = (req, res) => {
     TimePreference.find({tutor: req.params.tutorId})
-        //.populate('tutor')
         .then(timePreferences => res.json(timePreferences))
         .catch(err => res.status(400).json('Error: ' + err));
 }
