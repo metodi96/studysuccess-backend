@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 exports.get_profile = (req, res) => {
     User.findById(req.userData.userId)
         .populate('subjectsToTakeLessonsIn')
+        .populate('subjectsToTeach')
         .populate({
             path: 'favouriteTutors',
             populate: {
@@ -35,15 +36,12 @@ exports.update_profile = (req, res) => {
                 user.userImage = req.file.path;
             }
 
-            //check if user is tutor and then update the other fields
-            //should be moved to another function i think
-           /* if (user.hasCertificateOfEnrolment && user.hasGradeExcerpt) {
+            if (user.hasCertificateOfEnrolment && user.hasGradeExcerpt) {
                 user.pricePerHour = req.body.pricePerHour;
                 user.personalStatement = req.body.personalStatement;
                 user.languages = req.body.languages;
-                user.subjectsToTeach = req.body.subjectsToTeach;
-                user.timePreferences = req.body.timePreferences;
-            }*/
+                //user.timePreferences = req.body.timePreferences;
+            }
 
             user.save()
                 .then(() => user.hasCertificateOfEnrolment && user.hasGradeExcerpt ? res.json('User updated to tutor!') : res.json('User updated!'))
@@ -150,6 +148,19 @@ exports.add_subject_to_take_lessons_in = (req, res) => {
 
 exports.remove_subject_to_take_lessons_in = (req, res) => {
     User.updateOne({ _id: req.userData.userId }, { $pull: { subjectsToTakeLessonsIn: req.body.subjectId } }, { new: true })
+        .then(() => res.json("The subject was removed successfully."))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.add_subject_to_teach = (req, res) => {
+    console.log(req.body.subjectId);
+    User.updateOne({ _id: req.userData.userId }, { $addToSet: { subjectsToTeach: req.body.subjectId } }, { new: true })
+        .then(() => res.json("The subject was added successfully."))
+        .catch(err => res.status(400).json('Error: ' + err));
+}
+
+exports.remove_subject_to_teach = (req, res) => {
+    User.updateOne({ _id: req.userData.userId }, { $pull: { subjectsToTeach: req.body.subjectId } }, { new: true })
         .then(() => res.json("The subject was removed successfully."))
         .catch(err => res.status(400).json('Error: ' + err));
 }

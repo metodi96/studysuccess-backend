@@ -42,6 +42,8 @@ router.put('/profile/addToFavourites', checkAuth, AuthController.favourite_add);
 router.put('/profile/removeFromFavourites', checkAuth, AuthController.favourite_remove);
 router.put('/profile/addSubjectToTakeLessonsIn', checkAuth, AuthController.add_subject_to_take_lessons_in);
 router.put('/profile/removeSubjectToTakeLessonsIn', checkAuth, AuthController.remove_subject_to_take_lessons_in);
+router.put('/profile/addSubjectToTeach', checkAuth, AuthController.add_subject_to_teach);
+router.put('/profile/removeSubjectToTeach', checkAuth, AuthController.remove_subject_to_teach);
 router.delete('/profile/:timePreferenceId', checkAuth, AuthController.timepreference_delete_one);
 
 module.exports = router;
