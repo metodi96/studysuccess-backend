@@ -28,6 +28,7 @@ exports.tutors_get_one = (req, res) => {
 }
 
 exports.tutors_get_for_subject = (req, res) => {
+    console.log("I am in tutors get one for subject " + req.params.subjectId);
     User.find({
         hasCertificateOfEnrolment: true,
         hasGradeExcerpt: true
@@ -44,6 +45,7 @@ exports.tutors_get_for_subject = (req, res) => {
 }
 
 exports.tutors_get_one_for_subject = (req, res) => {
+    console.log("I am in this request");
     User.find({
         hasCertificateOfEnrolment: true,
         hasGradeExcerpt: true
@@ -128,13 +130,13 @@ exports.tutors_get_filtered = (req, res) => {
                             subjectsToTeach: req.params.subjectId,
                             '_id': { "$in": newList }
                         })
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
             }
             else if(req.body.dayTime == 3) {
-                TimePreference.find({ 'startTime.hours': { "$in": ['20', '21', '22', '23'] } })
+                TimePreference.find({ 'startTime.hours': { "$in": ['20', '21', '22'] } })
                     .then(timePrefList => {
                         let newList = timePrefList.map(item => item.tutor)
                         User.find({
@@ -143,13 +145,13 @@ exports.tutors_get_filtered = (req, res) => {
                             subjectsToTeach: req.params.subjectId,
                             '_id': { "$in": newList }
                         })
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
             }
             else if(req.body.dayTime == 4) {
-                TimePreference.find().where('day').gte(6)
+                TimePreference.find().where('day').equals(6).or('day').equals(0)
                     .then(timePrefList => {
                         let newList = timePrefList.map(item => item.tutor)
                         User.find({
@@ -158,14 +160,13 @@ exports.tutors_get_filtered = (req, res) => {
                             subjectsToTeach: req.params.subjectId,
                             '_id': { "$in": newList }
                         })
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => {res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
             }
         }
         else if (req.body.dayTime && req.body.language && req.body.pricePerHour === undefined) { // if time availability filtering is set
-            console.log('languages and day time')
             if (req.body.dayTime == 1) {
                 TimePreference.find({ 'startTime.hours': { "$in": ['07', '08', '09', '7', '8', '9', '10', '11', '12', '13'] } })
                     .then(timePrefList => {
@@ -178,7 +179,7 @@ exports.tutors_get_filtered = (req, res) => {
                             '_id': { "$in": newList } })
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => {res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
@@ -196,13 +197,13 @@ exports.tutors_get_filtered = (req, res) => {
                         })
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
             }
             else if (req.body.dayTime == 3) {
-                TimePreference.find({ 'startTime.hours': { "$in": ['20', '21', '22', '23'] } })
+                TimePreference.find({ 'startTime.hours': { "$in": ['20', '21', '22'] } })
                     .then(timePrefList => {
                         let newList = timePrefList.map(item => item.tutor)
                         User.find({
@@ -214,13 +215,13 @@ exports.tutors_get_filtered = (req, res) => {
                         })
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
             }
             else if (req.body.dayTime == 4) {
-                TimePreference.find().where('day').gte(6)
+                TimePreference.find().where('day').equals(6).or('day').equals(0)
                     .then(timePrefList => {
                         let newList = timePrefList.map(item => item.tutor)
                         User.find({
@@ -232,7 +233,7 @@ exports.tutors_get_filtered = (req, res) => {
                         })
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
@@ -240,9 +241,8 @@ exports.tutors_get_filtered = (req, res) => {
         }
 
         else if (req.body.dayTime && req.body.language === undefined && req.body.pricePerHour) { // if time availability filtering is set
-            console.log('day time and price')
             if (req.body.dayTime == 1) {
-                TimePreference.find({ 'startTime.hours': { "$in": ['07', '08', '09', '10', '11', '12', '13'] } })
+                TimePreference.find({ 'startTime.hours': { "$in": ['07', '08', '09', '7', '8', '9', '10', '11', '12', '13'] } })
                     .then(timePrefList => {
                         let newList = timePrefList.map(item => item.tutor)
                         User.find({
@@ -254,7 +254,7 @@ exports.tutors_get_filtered = (req, res) => {
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
                             .where('pricePerHour').lte(req.body.pricePerHour)
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
@@ -272,13 +272,13 @@ exports.tutors_get_filtered = (req, res) => {
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
                             .where('pricePerHour').lte(req.body.pricePerHour)
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
             }
             else if (req.body.dayTime == 3) {
-                TimePreference.find({ 'startTime.hours': { "$in": ['20', '21', '22', '23'] } })
+                TimePreference.find({ 'startTime.hours': { "$in": ['20', '21', '22'] } })
                     .then(timePrefList => {
                         let newList = timePrefList.map(item => item.tutor)
                         User.find({
@@ -290,13 +290,13 @@ exports.tutors_get_filtered = (req, res) => {
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
                             .where('pricePerHour').lte(req.body.pricePerHour)
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
             }
             else if (req.body.dayTime == 4) {
-                TimePreference.find().where('day').gte(6)
+                TimePreference.find().where('day').equals(6).or('day').equals(0)
                     .then(timePrefList => {
                         let newList = timePrefList.map(item => item.tutor)
                         User.find({
@@ -308,7 +308,7 @@ exports.tutors_get_filtered = (req, res) => {
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
                             .where('pricePerHour').lte(req.body.pricePerHour)
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => {res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
@@ -316,7 +316,6 @@ exports.tutors_get_filtered = (req, res) => {
         }
 
         else if (req.body.dayTime && req.body.language && req.body.pricePerHour) { // if time availability filtering is set
-            console.log('everything')
             if (req.body.dayTime == 1) {
                 TimePreference.find({ 'startTime.hours': { "$in": ['07', '08', '09', '7', '8', '9', '10', '11', '12', '13'] } })
                     .then(timePrefList => {
@@ -331,7 +330,7 @@ exports.tutors_get_filtered = (req, res) => {
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
                             .where('pricePerHour').lte(req.body.pricePerHour)
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
@@ -350,13 +349,13 @@ exports.tutors_get_filtered = (req, res) => {
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
                             .where('pricePerHour').lte(req.body.pricePerHour)
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => {res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
             }
             else if (req.body.dayTime == 3) {
-                TimePreference.find({ 'startTime.hours': { "$in": ['20', '21', '22', '23'] } })
+                TimePreference.find({ 'startTime.hours': { "$in": ['20', '21', '22'] } })
                     .then(timePrefList => {
                         let newList = timePrefList.map(item => item.tutor)
                         User.find({
@@ -369,13 +368,13 @@ exports.tutors_get_filtered = (req, res) => {
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
                             .where('pricePerHour').lte(req.body.pricePerHour)
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
             }
             else if (req.body.dayTime == 4) {
-                TimePreference.find().where('day').gte(6)
+                TimePreference.find().where('day').equals(6).or('day').equals(0)
                     .then(timePrefList => {
                         let newList = timePrefList.map(item => item.tutor)
                         User.find({
@@ -388,7 +387,7 @@ exports.tutors_get_filtered = (req, res) => {
                             .populate('subjectsToTakeLessonsIn')
                             .populate('subjectsToTeach')
                             .where('pricePerHour').lte(req.body.pricePerHour)
-                            .then(tutor => { console.log(tutor); res.json(tutor) })
+                            .then(tutor => { res.json(tutor) })
                             .catch(err => res.status(400).json('Error: ' + err))
                     })
                     .catch(err => res.status(400).json('Error: ' + err));
