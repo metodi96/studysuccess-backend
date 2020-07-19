@@ -22,7 +22,6 @@ exports.tutors_get_one = (req, res) => {
     })
         .populate('subjectsToTakeLessonsIn')
         .populate('subjectsToTeach')
-        .populate('timePreferences')
         .then(user => res.json(user))
         .catch(err => res.status(400).json('Error: ' + err));
 }
