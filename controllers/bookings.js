@@ -141,6 +141,13 @@ exports.bookings_get_accepted_invitations = (req, res) => {
             },
             match: { timeslotStart: { $gt: new Date() }}
         })
+        .populate({
+            path: 'booking',
+            populate: {
+                path: 'subject'
+            },
+            match: { timeslotStart: { $gt: new Date() } }
+        })
         .populate('fromUser')
         .then(invitations => res.json(invitations))
         .catch(err => res.status(400).json('Error: ' + err))
