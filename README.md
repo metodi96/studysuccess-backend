@@ -1,4 +1,4 @@
-Frontend is located at this [repository](https://github.com/metodi96/studysuccess-frontend)
+The frontend of the StudySuccess Web App is located in this [repository](https://github.com/metodi96/studysuccess-frontend)
 
 # Prerequisite: add a .env file in the root folder containing the following 4 keys and their custom values:
 
